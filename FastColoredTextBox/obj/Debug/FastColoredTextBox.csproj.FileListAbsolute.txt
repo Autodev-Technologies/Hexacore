@@ -1,0 +1,26 @@
+C:\Users\gonza\Downloads\FastColoredTextBox-master3\FastColoredTextBox-master\FastColoredTextBox\bin\Debug\FastColoredTextBox.XML
+C:\Users\gonza\Downloads\FastColoredTextBox-master3\FastColoredTextBox-master\FastColoredTextBox\bin\Debug\FastColoredTextBox.dll
+C:\Users\gonza\Downloads\FastColoredTextBox-master3\FastColoredTextBox-master\FastColoredTextBox\bin\Debug\FastColoredTextBox.pdb
+C:\Users\gonza\Downloads\FastColoredTextBox-master3\FastColoredTextBox-master\FastColoredTextBox\obj\Debug\FastColoredTextBox.csproj.AssemblyReference.cache
+C:\Users\gonza\Downloads\FastColoredTextBox-master3\FastColoredTextBox-master\FastColoredTextBox\obj\Debug\FastColoredTextBoxNS.FastColoredTextBox.resources
+C:\Users\gonza\Downloads\FastColoredTextBox-master3\FastColoredTextBox-master\FastColoredTextBox\obj\Debug\FastColoredTextBoxNS.FindForm.resources
+C:\Users\gonza\Downloads\FastColoredTextBox-master3\FastColoredTextBox-master\FastColoredTextBox\obj\Debug\FastColoredTextBoxNS.GoToForm.resources
+C:\Users\gonza\Downloads\FastColoredTextBox-master3\FastColoredTextBox-master\FastColoredTextBox\obj\Debug\FastColoredTextBoxNS.HotkeysEditorForm.resources
+C:\Users\gonza\Downloads\FastColoredTextBox-master3\FastColoredTextBox-master\FastColoredTextBox\obj\Debug\FastColoredTextBoxNS.ReplaceForm.resources
+C:\Users\gonza\Downloads\FastColoredTextBox-master3\FastColoredTextBox-master\FastColoredTextBox\obj\Debug\FastColoredTextBox.csproj.GenerateResource.cache
+C:\Users\gonza\Downloads\FastColoredTextBox-master3\FastColoredTextBox-master\FastColoredTextBox\obj\Debug\FastColoredTextBox.csproj.CoreCompileInputs.cache
+C:\Users\gonza\Downloads\FastColoredTextBox-master3\FastColoredTextBox-master\FastColoredTextBox\obj\Debug\FastColoredTextBox.dll
+C:\Users\gonza\Downloads\FastColoredTextBox-master3\FastColoredTextBox-master\FastColoredTextBox\obj\Debug\FastColoredTextBox.pdb
+C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024\FastColoredTextBox\bin\Debug\FastColoredTextBox.XML
+C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024\FastColoredTextBox\bin\Debug\FastColoredTextBox.dll
+C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024\FastColoredTextBox\bin\Debug\FastColoredTextBox.pdb
+C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024\FastColoredTextBox\obj\Debug\FastColoredTextBox.csproj.AssemblyReference.cache
+C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024\FastColoredTextBox\obj\Debug\FastColoredTextBoxNS.FastColoredTextBox.resources
+C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024\FastColoredTextBox\obj\Debug\FastColoredTextBoxNS.FindForm.resources
+C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024\FastColoredTextBox\obj\Debug\FastColoredTextBoxNS.GoToForm.resources
+C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024\FastColoredTextBox\obj\Debug\FastColoredTextBoxNS.HotkeysEditorForm.resources
+C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024\FastColoredTextBox\obj\Debug\FastColoredTextBoxNS.ReplaceForm.resources
+C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024\FastColoredTextBox\obj\Debug\FastColoredTextBox.csproj.GenerateResource.cache
+C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024\FastColoredTextBox\obj\Debug\FastColoredTextBox.csproj.CoreCompileInputs.cache
+C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024\FastColoredTextBox\obj\Debug\FastColoredTextBox.dll
+C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024\FastColoredTextBox\obj\Debug\FastColoredTextBox.pdb
