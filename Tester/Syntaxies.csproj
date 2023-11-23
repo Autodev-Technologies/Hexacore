@@ -93,6 +93,12 @@
     <Compile Include="HTMLPreview.Designer.cs">
       <DependentUpon>HTMLPreview.cs</DependentUpon>
     </Compile>
+    <Compile Include="NewItem.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewItem.Designer.cs">
+      <DependentUpon>NewItem.cs</DependentUpon>
+    </Compile>
     <Compile Include="SplashScreen.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -115,6 +121,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="HTMLPreview.resx">
       <DependentUpon>HTMLPreview.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewItem.resx">
+      <DependentUpon>NewItem.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SplashScreen.resx">
       <DependentUpon>SplashScreen.cs</DependentUpon>
@@ -201,6 +210,11 @@
     <None Include="Resources\Replace.png" />
     <None Include="Resources\Open1.png" />
     <None Include="Resources\Open2.png" />
+    <None Include="Resources\IndexIcon.png" />
+    <None Include="Resources\ClassViewIcon.png" />
+    <None Include="Resources\OutputIcon.png" />
+    <None Include="Resources\ExplorerIcon.png" />
+    <None Include="Resources\HideAllIcon.png" />
     <Content Include="SyntaxiesIcon.ico" />
     <Content Include="TabStrip.dll" />
   </ItemGroup>

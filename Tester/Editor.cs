@@ -33,9 +33,14 @@ namespace Tester
         Color changedLineColor = Color.FromArgb(255, 230, 230, 255);
 
 
+        public static Editor instance;
+        public ToolStripMenuItem SelcelLang;
         public Editor()
         {
             InitializeComponent();
+
+            instance = this;
+            SelcelLang = langToolStripMenuItem;
 
             //init menu images
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Editor));
@@ -47,7 +52,8 @@ namespace Tester
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CreateTab(null);
+            NewItem NewItemPopup = new NewItem();
+            NewItemPopup.Show();
         }
 
         private Style sameWordsStyle = new MarkerStyle(new SolidBrush(Color.FromArgb(50, Color.Gray)));
@@ -56,6 +62,7 @@ namespace Tester
         {
             try
             {
+                treeView5.Visible = true;
                 var tb = new FastColoredTextBox();
                 tb.Font = new Font("Consolas", 9.75f);
                 tb.ContextMenuStrip = cmMain;
@@ -976,8 +983,8 @@ namespace Tester
 
                     foreach (CompilerError CompErr in results.Errors)
                     {
-                        OutputConsole.ForeColor = Color.Red;
-                        OutputConsole.Text += currentTime + ": Error: " + errsText.ToString() + "\n";
+                        richTextBox1.ForeColor = Color.Red;
+                        richTextBox1.Text += currentTime + ": Error: " + errsText.ToString() + "\n";
                     }
 
                     toolStripStatusLabel1.ForeColor = Color.Red;
@@ -989,10 +996,10 @@ namespace Tester
                     //run compiled app
                     System.Diagnostics.Process.Start(OutPath);
 
-                    OutputConsole.Text = "";
+                    richTextBox1.Text = "";
 
-                    OutputConsole.ForeColor = Color.Green;
-                    OutputConsole.Text += currentTime + "Info: " + "There is no currently error on your code!" + "\n";
+                    richTextBox1.ForeColor = Color.Green;
+                    richTextBox1.Text += currentTime + "Info: " + "There is no currently error on your code!" + "\n";
 
                     toolStripStatusLabel1.ForeColor = Color.Green;
                     toolStripStatusLabel1.Text = currentTime + ": Info: " + "Successful compilation";
@@ -1089,74 +1096,1778 @@ namespace Tester
 
                     if (e.Node.Name.EndsWith(".html"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.HTML;
                     }
                     else if (e.Node.Name.EndsWith(".htm"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.HTML;
                     }
                     else if (e.Node.Name.EndsWith(".xhtml"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.HTML;
                     }
                     else if (e.Node.Name.EndsWith(".shtml"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.HTML;
                     }
                     else if (e.Node.Name.EndsWith(".cs"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.CSharp;
                     }
                     else if (e.Node.Name.EndsWith(".php"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.PHP;
                     }
                     else if (e.Node.Name.EndsWith(".phps"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.PHP;
                     }
                     else if (e.Node.Name.EndsWith(".phtml"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.PHP;
                     }
                     else if (e.Node.Name.EndsWith(".lua"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.Lua;
                     }
                     else if (e.Node.Name.EndsWith(".luac"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.Lua;
                     }
                     else if (e.Node.Name.EndsWith(".xml"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.XML;
                     }
                     else if (e.Node.Name.EndsWith(".xsd"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.XML;
                     }
                     else if (e.Node.Name.EndsWith(".xsl"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.XML;
                     }
                     else if (e.Node.Name.EndsWith(".vb"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.VB;
                     }
                     else if (e.Node.Name.EndsWith(".json"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.JSON;
                     }
                     else if (e.Node.Name.EndsWith(".js"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.JS;
                     }
                     else if (e.Node.Name.EndsWith(".jsx"))
                     {
+                        treeView5.Visible = true;
                         tb.Language = Language.JS;
                     }
                     else if (e.Node.Name.EndsWith(".sql"))
                     {
+                        treeView5.Visible = true;
+                        tb.Language = Language.SQL;
+                    }
+                    else
+                    {
+                        tb.Language = Language.Custom;
+                    }
+
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+
+                    // Open File
+                    tb.Text = File.ReadAllText(((FileInfo)e.Node.Tag).FullName);
+
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                }
+            }
+        }
+
+        private void aboutINDEVSyntaxiesToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            About AboutSyntaxies = new About();
+            AboutSyntaxies.Show();
+        }
+
+        private void textFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string fileName = "[new]";
+
+            try
+            {
+                var tb = new FastColoredTextBox();
+                tb.Font = new Font("Consolas", 9.75f);
+                tb.ContextMenuStrip = cmMain;
+                tb.Dock = DockStyle.Fill;
+                tb.BorderStyle = BorderStyle.None;
+                //tb.VirtualSpace = true;
+                tb.LeftPadding = 17;
+
+                tb.Language = Language.Custom;
+
+                tb.AddStyle(sameWordsStyle);//same words style
+                var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                tab.Tag = fileName;
+                if (fileName != null)
+                    tb.OpenFile(fileName);
+                tb.Tag = new TbInfo();
+                tsFiles.AddTab(tab);
+                tsFiles.SelectedItem = tab;
+                tb.Focus();
+
+                tb.DelayedTextChangedInterval = 1000;
+                tb.DelayedEventsInterval = 500;
+                tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                tb.ChangedLineColor = changedLineColor;
+                if (btHighlightCurrentLine.Checked)
+                    tb.CurrentLineColor = currentLineColor;
+                tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                //create autocomplete popup menu
+                AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                popupMenu.Items.ImageList = ilAutocomplete;
+                popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                BuildAutocompleteMenu(popupMenu);
+                (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                var dm = new DocumentMap();
+                dm.Dock = DockStyle.Right;
+                dm.Size = new Size(82, 340);
+                dm.Target = tb;
+            }
+            catch (Exception ex)
+            {
+                if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                    CreateTab(fileName);
+            }
+        }
+
+        private void newToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            NewItem NewItemPopup = new NewItem();
+            NewItemPopup.Show();
+        }
+
+        private void saveToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            if (tsFiles.SelectedItem != null)
+                Save(tsFiles.SelectedItem);
+        }
+
+        private void openToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            if (ofdMain.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                CreateTab(ofdMain.FileName);
+        }
+
+        private void printToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (CurrentTB != null)
+            {
+                var settings = new PrintDialogSettings();
+                settings.Title = tsFiles.SelectedItem.Title;
+                settings.Header = "&b&w&b";
+                settings.Footer = "&b&p";
+                CurrentTB.Print(settings);
+            }
+        }
+
+        private void saveAsToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            if (tsFiles.SelectedItem != null)
+            {
+                string oldFile = tsFiles.SelectedItem.Tag as string;
+                tsFiles.SelectedItem.Tag = null;
+                if (!Save(tsFiles.SelectedItem))
+                    if (oldFile != null)
+                    {
+                        tsFiles.SelectedItem.Tag = oldFile;
+                        tsFiles.SelectedItem.Title = Path.GetFileName(oldFile);
+                    }
+            }
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void goToToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CurrentTB.ShowGoToDialog();
+        }
+
+        private void replaceToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            CurrentTB.ShowReplaceDialog();
+        }
+
+        private void undoToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (CurrentTB.UndoEnabled)
+                CurrentTB.Undo();
+        }
+
+        private void redoToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (CurrentTB.RedoEnabled)
+                CurrentTB.Redo();
+        }
+
+        private void copyToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            CurrentTB.Copy();
+        }
+
+        private void cutToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            CurrentTB.Cut();
+        }
+
+        private void pasteToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            CurrentTB.Paste();
+        }
+
+        private void playToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (CurrentTB.Language == FastColoredTextBoxNS.Language.HTML) //if language is html
+            {
+                HTMLPreview h = new HTMLPreview(CurrentTB.Text);
+                h.Show();
+            }
+            else if (CurrentTB.Language == FastColoredTextBoxNS.Language.CSharp) //if language is c#
+            {
+                toolStripStatusLabel1.Text = "Info: " + "Starting to compile the program";
+
+                SaveFileDialog sf = new SaveFileDialog();
+                sf.Filter = "Executable File|*.exe";
+                string OutPath = "There is no Output Path to create the program";
+                if (sf.ShowDialog() == DialogResult.OK)
+                {
+                    OutPath = sf.FileName;
+                }
+                //compile code:
+                //create c# code compiler
+                CSharpCodeProvider codeProvider = new CSharpCodeProvider();
+                //create new parameters for compilation and add references(libs) to compiled app
+                CompilerParameters parameters = new CompilerParameters(new string[] { "System.dll" });
+                //is compiled code will be executable?(.exe)
+                parameters.GenerateExecutable = true;
+                //output path
+                parameters.OutputAssembly = OutPath;
+                //code sources to compile
+                string[] sources = { CurrentTB.Text };
+                //results of compilation
+                CompilerResults results = codeProvider.CompileAssemblyFromSource(parameters, sources);
+
+                // Get the current time
+                string currentTime = DateTime.Now.ToString();
+
+                timer1.Enabled = true;
+                toolStripProgressBar1.Enabled = true;
+
+                toolStripStatusLabel1.Text = "Info: " + "Loading";
+
+                //if has errors
+                if (results.Errors.Count > 0)
+                {
+                    string errsText = "";
+                    foreach (CompilerError CompErr in results.Errors)
+                    {
+                        errsText = "Code Error: (" + CompErr.ErrorNumber +
+                                    "), Line " + CompErr.Line +
+                                    ", Column " + CompErr.Column +
+                                    ": " + CompErr.ErrorText + "" +
+                                    Environment.NewLine;
+                    }
+                    //show error message
+                    MessageBox.Show(errsText, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    foreach (CompilerError CompErr in results.Errors)
+                    {
+                        richTextBox1.ForeColor = Color.Red;
+                        richTextBox1.Text += currentTime + ": Error: " + errsText.ToString() + "\n";
+                    }
+
+                    toolStripStatusLabel1.ForeColor = Color.Red;
+                    toolStripStatusLabel1.Text = currentTime + ": Error: " + errsText.ToString();
+
+                }
+                else
+                {
+                    //run compiled app
+                    System.Diagnostics.Process.Start(OutPath);
+
+                    richTextBox1.Text = "";
+
+                    richTextBox1.ForeColor = Color.Green;
+                    richTextBox1.Text += currentTime + "Info: " + "There is no currently error on your code!" + "\n";
+
+                    //toolStripStatusLabel1.ForeColor = Color.Green;
+                    //toolStripStatusLabel1.Text = currentTime + ": Info: " + "Successful compilation";
+                }
+            }
+            else
+            {
+                MessageBox.Show("INDEV Syntaxies: Cannot open this file!");
+            }
+        }
+
+        private void fullscreenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FormBorderStyle = FormBorderStyle.None;
+            WindowState = FormWindowState.Maximized;
+            TopMost = false;
+            viewToolStripMenuItem.Visible = false;
+            fullscreenToolStripMenuItem1.Visible = true;
+        }
+
+        private void Editor_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                FormBorderStyle = FormBorderStyle.Sizable;
+                WindowState = FormWindowState.Normal;
+                TopMost = true;
+                viewToolStripMenuItem.Visible = true;
+                fullscreenToolStripMenuItem1.Visible = false;
+            }
+        }
+
+        private void fullscreenToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            FormBorderStyle = FormBorderStyle.Sizable;
+            WindowState = FormWindowState.Normal;
+            TopMost = true;
+            viewToolStripMenuItem.Visible = true;
+            fullscreenToolStripMenuItem1.Visible = false;
+        }
+
+        private void Editor_Load(object sender, EventArgs e)
+        {
+            string fileName = "[new]";
+            if (langToolStripMenuItem.Text == "Lang:Custom")
+            {
+                try
+                {
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.Custom;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:C#")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.CSharp;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:HTML")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.HTML;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:JS")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.JS;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:JSON")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.JSON;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:Lua")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.Lua;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:PHP")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.PHP;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:SQL")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.SQL;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:VB")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.VB;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:XML")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.XML;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else
+            {
+                langToolStripMenuItem.Text = "N/A";
+            }
+        }
+
+        private void Editor_QueryAccessibilityHelp(object sender, QueryAccessibilityHelpEventArgs e)
+        {
+
+        }
+
+        private void langToolStripMenuItem_TextChanged(object sender, EventArgs e)
+        {
+            string fileName = null;
+            if (langToolStripMenuItem.Text == "Lang:Custom")
+            {
+                try
+                {
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.Custom;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:C#")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.CSharp;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:HTML")
+            {
+                try
+                {
+
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.HTML;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:JS")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.JS;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:JSON")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.JSON;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:Lua")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.Lua;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:PHP")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.PHP;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:SQL")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.SQL;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:VB")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.VB;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:XML")
+            {
+                try
+                {
+                    treeView5.Visible = true;
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.XML;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else
+            {
+                langToolStripMenuItem.Text = "N/A";
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+            if (splitContainer4.Panel1Collapsed == true)
+            {
+                splitContainer4.Panel1Collapsed = false;
+                splitContainer4.Panel2Collapsed = true;
+            }
+            else
+            {
+                splitContainer4.Panel1Collapsed = true;
+                splitContainer4.Panel2Collapsed = false;
+            }
+        }
+
+        private void toolStripButton2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void splitContainer1_Panel2_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (splitContainer2.Panel1Collapsed == true)
+            {
+                splitContainer2.Panel1Collapsed = false;
+                splitContainer2.Panel2Collapsed = true;
+            }
+            else
+            {
+                splitContainer2.Panel1Collapsed = true;
+                splitContainer2.Panel2Collapsed = false;
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (splitContainer2.Panel2Collapsed == true)
+            {
+                splitContainer2.Panel2Collapsed = false;
+                splitContainer2.Panel1Collapsed = true;
+            }
+            else
+            {
+                splitContainer2.Panel2Collapsed = true;
+                splitContainer2.Panel1Collapsed = false;
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            if (splitContainer2.Visible == true)
+            {
+                button4.ImageIndex = 1;
+                splitter1.Visible = false;
+                splitContainer2.Visible = false;
+            }
+            else
+            {
+                button4.ImageIndex = 0;
+                splitter1.Visible = true;
+                splitContainer2.Visible = true;
+            }
+        }
+
+        private void button1_MouseHover(object sender, EventArgs e)
+        {
+        }
+
+        private void button2_MouseHover(object sender, EventArgs e)
+        {
+        }
+
+        private void button3_MouseHover(object sender, EventArgs e)
+        {
+        }
+
+        private void button1_MouseDown(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void button2_MouseLeave(object sender, EventArgs e)
+        {
+        }
+
+        private void button1_MouseLeave(object sender, EventArgs e)
+        {
+        }
+
+        private void button3_MouseLeave(object sender, EventArgs e)
+        {
+        }
+
+        private void toolStripButton2_Click_1(object sender, EventArgs e)
+        {
+            folderBrowserDialog2.ShowDialog();
+            Cursor.Current = Cursors.WaitCursor;
+
+            treeView3.Nodes.Clear();
+            foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+            {
+                DirectoryInfo di = new DirectoryInfo(item);
+                var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 2, selectedImageIndex: 2);
+                node.Tag = di;
+            }
+
+            foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+            {
+                FileInfo di = new FileInfo(item);
+
+                if (di.Name.EndsWith(".cs"))
+                {
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 1, selectedImageIndex: 1);
+                    node.Tag = di;
+                }
+                //var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 1, selectedImageIndex: 1);
+                //node.Tag = di;
+            }
+            Cursor.Current = Cursors.Default;
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (splitContainer4.Panel2Collapsed == true)
+            {
+                splitContainer4.Panel1Collapsed = false;
+                splitContainer4.Panel2Collapsed = true;
+            }
+            else
+            {
+                splitContainer4.Panel2Collapsed = true;
+                splitContainer4.Panel1Collapsed = false;
+            }
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            if (splitContainer4.Visible == true)
+            {
+                button6.ImageIndex = 0;
+                splitter1.Visible = false;
+                splitContainer4.Visible = false;
+                splitContainer1.Panel1Collapsed = true;
+            }
+            else
+            {
+                button6.ImageIndex = 1;
+                splitter1.Visible = true;
+                splitContainer4.Visible = true;
+                splitContainer1.Panel1Collapsed = false;
+            }
+        }
+
+        private void treeView3_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Node.Tag == null)
+            {
+                // Return
+            }
+            else if (e.Node.Tag.GetType() == typeof(DirectoryInfo))
+            {
+                // open Folder
+                e.Node.Nodes.Clear();
+                foreach (var item in Directory.GetDirectories(((DirectoryInfo)e.Node.Tag).FullName))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 2, selectedImageIndex: 2);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(((DirectoryInfo)e.Node.Tag).FullName))
+                {
+                    FileInfo fileInfo = new FileInfo(item);
+
+                    if (fileInfo.Name.EndsWith(".cs"))
+                    {
+                        var node = e.Node.Nodes.Add(key: fileInfo.Name, text: fileInfo.Name, imageIndex: 1, selectedImageIndex: 1);
+                        node.Tag = fileInfo;
+                    }
+                }
+                e.Node.Expand();
+            }
+            else
+            {
+                string fileName = (((FileInfo)e.Node.Tag).FullName);
+
+                try
+                {
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+
+                    if (e.Node.Name.EndsWith(".html"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.HTML;
+                    }
+                    else if (e.Node.Name.EndsWith(".htm"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.HTML;
+                    }
+                    else if (e.Node.Name.EndsWith(".xhtml"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.HTML;
+                    }
+                    else if (e.Node.Name.EndsWith(".shtml"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.HTML;
+                    }
+                    else if (e.Node.Name.EndsWith(".cs"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.CSharp;
+                    }
+                    else if (e.Node.Name.EndsWith(".php"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.PHP;
+                    }
+                    else if (e.Node.Name.EndsWith(".phps"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.PHP;
+                    }
+                    else if (e.Node.Name.EndsWith(".phtml"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.PHP;
+                    }
+                    else if (e.Node.Name.EndsWith(".lua"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.Lua;
+                    }
+                    else if (e.Node.Name.EndsWith(".luac"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.Lua;
+                    }
+                    else if (e.Node.Name.EndsWith(".xml"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.XML;
+                    }
+                    else if (e.Node.Name.EndsWith(".xsd"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.XML;
+                    }
+                    else if (e.Node.Name.EndsWith(".xsl"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.XML;
+                    }
+                    else if (e.Node.Name.EndsWith(".vb"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.VB;
+                    }
+                    else if (e.Node.Name.EndsWith(".json"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.JSON;
+                    }
+                    else if (e.Node.Name.EndsWith(".js"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.JS;
+                    }
+                    else if (e.Node.Name.EndsWith(".jsx"))
+                    {
+                        treeView5.Visible = true;
+                        tb.Language = Language.JS;
+                    }
+                    else if (e.Node.Name.EndsWith(".sql"))
+                    {
+                        treeView5.Visible = true;
                         tb.Language = Language.SQL;
                     }
                     else
