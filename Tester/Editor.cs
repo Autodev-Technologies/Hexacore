@@ -35,12 +35,16 @@ namespace Tester
 
         public static Editor instance;
         public ToolStripMenuItem SelcelLang;
+        public ToolStripMenuItem ProjLangua;
+        public ToolStripLabel DirectoryPath;
         public Editor()
         {
             InitializeComponent();
 
             instance = this;
             SelcelLang = langToolStripMenuItem;
+            ProjLangua = projLangToolStripMenuItem;
+            DirectoryPath = toolStripLabel2;
 
             //init menu images
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Editor));
@@ -983,8 +987,11 @@ namespace Tester
 
                     foreach (CompilerError CompErr in results.Errors)
                     {
-                        richTextBox1.ForeColor = Color.Red;
-                        richTextBox1.Text += currentTime + ": Error: " + errsText.ToString() + "\n";
+                        string ErrorText = "Error:" + errsText.ToString();
+;
+                        Log(DateTime.Now, ErrorText, "\r\n", errorStyle);
+                        //richTextBox1.ForeColor = Color.Red;
+                        //richTextBox1.Text += currentTime + ": Error: " + errsText.ToString() + "\n";
                     }
 
                     toolStripStatusLabel1.ForeColor = Color.Red;
@@ -996,10 +1003,9 @@ namespace Tester
                     //run compiled app
                     System.Diagnostics.Process.Start(OutPath);
 
-                    richTextBox1.Text = "";
+                    FCTBConsole.Text = "";
 
-                    richTextBox1.ForeColor = Color.Green;
-                    richTextBox1.Text += currentTime + "Info: " + "There is no currently error on your code!" + "\n";
+                    Log(DateTime.Now, " Info: Successful Compilation", "\r\n", infoStyle);
 
                     toolStripStatusLabel1.ForeColor = Color.Green;
                     toolStripStatusLabel1.Text = currentTime + ": Info: " + "Successful compilation";
@@ -1439,8 +1445,12 @@ namespace Tester
 
                     foreach (CompilerError CompErr in results.Errors)
                     {
-                        richTextBox1.ForeColor = Color.Red;
-                        richTextBox1.Text += currentTime + ": Error: " + errsText.ToString() + "\n";
+                        string ErrorText = "Error:" + errsText.ToString();
+                        
+                        Log(DateTime.Now, ErrorText, "\r\n", errorStyle);
+
+                        //richTextBox1.ForeColor = Color.Red;
+                        //richTextBox1.Text += currentTime + ": Error: " + errsText.ToString() + "\n";
                     }
 
                     toolStripStatusLabel1.ForeColor = Color.Red;
@@ -1452,13 +1462,12 @@ namespace Tester
                     //run compiled app
                     System.Diagnostics.Process.Start(OutPath);
 
-                    richTextBox1.Text = "";
+                    FCTBConsole.Text = "";
 
-                    richTextBox1.ForeColor = Color.Green;
-                    richTextBox1.Text += currentTime + "Info: " + "There is no currently error on your code!" + "\n";
+                    Log(DateTime.Now, " Info: Successful Compilation", "\r\n", infoStyle);
 
-                    //toolStripStatusLabel1.ForeColor = Color.Green;
-                    //toolStripStatusLabel1.Text = currentTime + ": Info: " + "Successful compilation";
+                    toolStripStatusLabel1.ForeColor = Color.Green;
+                    toolStripStatusLabel1.Text = currentTime + ": Info: " + "Successful compilation";
                 }
             }
             else
@@ -2682,26 +2691,186 @@ namespace Tester
             folderBrowserDialog2.ShowDialog();
             Cursor.Current = Cursors.WaitCursor;
 
+            MixedProject ProjLanguage = new MixedProject();
+            ProjLanguage.Show();
+
             treeView3.Nodes.Clear();
-            foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
-            {
-                DirectoryInfo di = new DirectoryInfo(item);
-                var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 2, selectedImageIndex: 2);
-                node.Tag = di;
-            }
 
-            foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+            if (projLangToolStripMenuItem.Text == "ProjLang:C#")
             {
-                FileInfo di = new FileInfo(item);
-
-                if (di.Name.EndsWith(".cs"))
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
                 {
-                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 1, selectedImageIndex: 1);
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
                     node.Tag = di;
                 }
-                //var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 1, selectedImageIndex: 1);
-                //node.Tag = di;
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView3.Nodes.Clear();
+                    treeView4.ImageIndex = 0;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "C# Project";
+                    treeView4.Nodes[0].ImageIndex = 0;
+                    treeView4.Nodes[0].SelectedImageIndex = 0;
+
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".cs"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 5, selectedImageIndex: 5);
+                        node.Tag = di;
+                    }
+                }
             }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:Lua")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView3.Nodes.Clear();
+                    treeView4.ImageIndex = 3;
+                    treeView4.Nodes[0].SelectedImageIndex = 3;
+                    treeView4.Nodes[0].ImageIndex = 3;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "Lua Project";
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".lua"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 9, selectedImageIndex: 9);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".luac"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 9, selectedImageIndex: 9);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:WebPage")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView3.Nodes.Clear();
+                    treeView4.ImageIndex = 2;
+                    treeView4.Nodes[0].SelectedImageIndex = 2;
+                    treeView4.Nodes[0].ImageIndex = 2;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "Web Project";
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".html"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".htm"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".xhtml"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".shtml"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".js"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 11, selectedImageIndex: 11);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".css"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 8, selectedImageIndex: 8);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:PHP")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView3.Nodes.Clear();
+                    treeView4.ImageIndex = 4;
+                    treeView4.Nodes[0].SelectedImageIndex = 4;
+                    treeView4.Nodes[0].ImageIndex = 4;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "PHP Project";
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".php"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 10, selectedImageIndex: 10);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".phps"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 10, selectedImageIndex: 10);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".phtml"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 10, selectedImageIndex: 10);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:VB")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView3.Nodes.Clear();
+                    treeView4.ImageIndex = 1;
+                    treeView4.Nodes[0].SelectedImageIndex = 1;
+                    treeView4.Nodes[0].ImageIndex = 1;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "Visual Basic Project";
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".vb"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 6, selectedImageIndex: 6);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else
+            {
+
+            }
+
             Cursor.Current = Cursors.Default;
         }
 
@@ -2750,19 +2919,136 @@ namespace Tester
                 foreach (var item in Directory.GetDirectories(((DirectoryInfo)e.Node.Tag).FullName))
                 {
                     DirectoryInfo di = new DirectoryInfo(item);
-                    var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 2, selectedImageIndex: 2);
+                    var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
                     node.Tag = di;
                 }
 
-                foreach (var item in Directory.GetFiles(((DirectoryInfo)e.Node.Tag).FullName))
+                if (projLangToolStripMenuItem.Text == "ProjLang:C#")
                 {
-                    FileInfo fileInfo = new FileInfo(item);
-
-                    if (fileInfo.Name.EndsWith(".cs"))
+                    foreach (var item in Directory.GetFiles(((DirectoryInfo)e.Node.Tag).FullName))
                     {
-                        var node = e.Node.Nodes.Add(key: fileInfo.Name, text: fileInfo.Name, imageIndex: 1, selectedImageIndex: 1);
-                        node.Tag = fileInfo;
+                        treeView4.Nodes[0].ImageIndex = 0;
+                        treeView4.Nodes[0].SelectedImageIndex = 0;
+
+                        FileInfo di = new FileInfo(item);
+
+                        if (di.Name.EndsWith(".cs"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 5, selectedImageIndex: 5);
+                            node.Tag = di;
+                        }
                     }
+                }
+                else if (projLangToolStripMenuItem.Text == "ProjLang:Lua")
+                {
+                    foreach (var item in Directory.GetFiles(((DirectoryInfo)e.Node.Tag).FullName))
+                    {
+                        treeView4.Nodes[0].SelectedImageIndex = 3;
+                        treeView4.Nodes[0].ImageIndex = 3;
+                        FileInfo di = new FileInfo(item);
+
+                        if (di.Name.EndsWith(".lua"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 9, selectedImageIndex: 9);
+                            node.Tag = di;
+                        }
+                        if (di.Name.EndsWith(".luac"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 9, selectedImageIndex: 9);
+                            node.Tag = di;
+                        }
+                    }
+                }
+                else if (projLangToolStripMenuItem.Text == "ProjLang:WebPage")
+                {
+                    foreach (var item in Directory.GetFiles(((DirectoryInfo)e.Node.Tag).FullName))
+                    {
+                        treeView4.Nodes[0].SelectedImageIndex = 2;
+                        treeView4.Nodes[0].ImageIndex = 2;
+                        FileInfo di = new FileInfo(item);
+
+                        if (di.Name.EndsWith(".html"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                            node.Tag = di;
+                        }
+                        if (di.Name.EndsWith(".htm"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                            node.Tag = di;
+                        }
+                        if (di.Name.EndsWith(".xhtml"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                            node.Tag = di;
+                        }
+                        if (di.Name.EndsWith(".shtml"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                            node.Tag = di;
+                        }
+                        if (di.Name.EndsWith(".js"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 11, selectedImageIndex: 11);
+                            node.Tag = di;
+                        }
+                        if (di.Name.EndsWith(".css"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 8, selectedImageIndex: 8);
+                            node.Tag = di;
+                        }
+                        if (di.Name.EndsWith(".php"))
+                        {
+                            var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 10, selectedImageIndex: 10);
+                            node.Tag = di;
+                        }
+                    }
+                }
+                else if (projLangToolStripMenuItem.Text == "ProjLang:PHP")
+                {
+                    foreach (var item in Directory.GetFiles(((DirectoryInfo)e.Node.Tag).FullName))
+                    {
+                        treeView4.Nodes[0].SelectedImageIndex = 4;
+                        treeView4.Nodes[0].ImageIndex = 4;
+                        FileInfo di = new FileInfo(item);
+
+                        if (di.Name.EndsWith(".php"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 10, selectedImageIndex: 10);
+                            node.Tag = di;
+                        }
+                        if (di.Name.EndsWith(".phps"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 10, selectedImageIndex: 10);
+                            node.Tag = di;
+                        }
+                        if (di.Name.EndsWith(".phtml"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 10, selectedImageIndex: 10);
+                            node.Tag = di;
+                        }
+                    }
+                }
+                else if (projLangToolStripMenuItem.Text == "ProjLang:VB")
+                {
+
+
+                    foreach (var item in Directory.GetFiles(((DirectoryInfo)e.Node.Tag).FullName))
+                    {
+                        treeView4.Nodes[0].SelectedImageIndex = 1;
+                        treeView4.Nodes[0].ImageIndex = 1;
+                        FileInfo di = new FileInfo(item);
+
+                        if (di.Name.EndsWith(".vb"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 6, selectedImageIndex: 6);
+                            node.Tag = di;
+                        }
+                    }
+                }
+                else
+                {
+
                 }
                 e.Node.Expand();
             }
@@ -2917,6 +3203,248 @@ namespace Tester
                         CreateTab(fileName);
                 }
             }
+        }
+
+        private void toolStripButton6_Click(object sender, EventArgs e)
+        {
+            MixedProject ProjLanguage = new MixedProject();
+            ProjLanguage.Show();
+        }
+
+        private void projLangToolStripMenuItem_TextChanged(object sender, EventArgs e)
+        { 
+            treeView3.Nodes.Clear();
+
+            if (projLangToolStripMenuItem.Text == "ProjLang:C#")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView4.ImageIndex = 0;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "C# Project";
+                    treeView4.Nodes[0].ImageIndex = 0;
+                    treeView4.Nodes[0].SelectedImageIndex = 0;
+
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".cs"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 5, selectedImageIndex: 5);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:Lua")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView4.ImageIndex = 3;
+                    treeView4.Nodes[0].SelectedImageIndex = 3;
+                    treeView4.Nodes[0].ImageIndex = 3;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "Lua Project";
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".lua"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 9, selectedImageIndex: 9);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".luac"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 9, selectedImageIndex: 9);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:WebPage")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView4.ImageIndex = 2;
+                    treeView4.Nodes[0].SelectedImageIndex = 2;
+                    treeView4.Nodes[0].ImageIndex = 2;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "Web Project";
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".html"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".htm"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".xhtml"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".shtml"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".js"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 11, selectedImageIndex: 11);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".css"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 8, selectedImageIndex: 8);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".php"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 10, selectedImageIndex: 10);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:PHP")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView4.ImageIndex = 4;
+                    treeView4.Nodes[0].SelectedImageIndex = 4;
+                    treeView4.Nodes[0].ImageIndex = 4;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "PHP Project";
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".php"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 10, selectedImageIndex: 10);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".phps"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 10, selectedImageIndex: 10);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".phtml"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 10, selectedImageIndex: 10);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:VB")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView4.ImageIndex = 1;
+                    treeView4.Nodes[0].SelectedImageIndex = 1;
+                    treeView4.Nodes[0].ImageIndex = 1;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "Visual Basic Project";
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".vb"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 6, selectedImageIndex: 6);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else
+            {
+
+            }
+        }
+
+        TextStyle infoStyle = new TextStyle(Brushes.Black, null, FontStyle.Regular);
+        TextStyle warningStyle = new TextStyle(Brushes.BurlyWood, null, FontStyle.Regular);
+        TextStyle errorStyle = new TextStyle(Brushes.Red, null, FontStyle.Regular);
+
+        private void Log(DateTime now, string text, string text2, Style style)
+        {
+            //some stuffs for best performance
+            FCTBConsole.BeginUpdate();
+            FCTBConsole.Selection.BeginUpdate();
+            //remember user selection
+            var userSelection = FCTBConsole.Selection.Clone();
+            //add text with predefined style
+            FCTBConsole.TextSource.CurrentTB = FCTBConsole;
+            FCTBConsole.AppendText(text, style);
+            //restore user selection
+            if (!userSelection.IsEmpty || userSelection.Start.iLine < FCTBConsole.LinesCount - 2)
+            {
+                FCTBConsole.Selection.Start = userSelection.Start;
+                FCTBConsole.Selection.End = userSelection.End;
+            }
+            else
+                FCTBConsole.GoEnd();//scroll to end of the text
+            //
+            FCTBConsole.Selection.EndUpdate();
+            FCTBConsole.EndUpdate();
+        }
+
+        private void LogError(DateTime now, string text, string text2,  Style style)
+        {
+            //some stuffs for best performance
+            FCTBConsole.BeginUpdate();
+            FCTBConsole.Selection.BeginUpdate();
+            //remember user selection
+            var userSelection = FCTBConsole.Selection.Clone();
+            //add text with predefined style
+            FCTBConsole.TextSource.CurrentTB = FCTBConsole;
+            FCTBConsole.AppendText(text, style);
+            //restore user selection
+            if (!userSelection.IsEmpty || userSelection.Start.iLine < FCTBConsole.LinesCount - 2)
+            {
+                FCTBConsole.Selection.Start = userSelection.Start;
+                FCTBConsole.Selection.End = userSelection.End;
+            }
+            else
+                FCTBConsole.GoEnd();//scroll to end of the text
+            //
+            FCTBConsole.Selection.EndUpdate();
+            FCTBConsole.EndUpdate();
+        }
+
+        private void toolStripButton4_Click(object sender, EventArgs e)
+        {
+            FCTBConsole.Text = "";
         }
     }
 

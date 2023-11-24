@@ -55,3 +55,4 @@ C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024 - Copy - Copy\
 C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024 - Copy - Copy\Tester\obj\x86\Dist\Syntaxies.csproj.CopyComplete
 C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024 - Copy - Copy\Tester\obj\x86\Dist\Syntaxies.exe
 C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024 - Copy - Copy\Tester\obj\x86\Dist\Syntaxies.pdb
+C:\Users\gonza\Documents\INDEV Creative 2024\INDEV Syntaxies 2024\Tester\obj\x86\Dist\Tester.MixedProject.resources

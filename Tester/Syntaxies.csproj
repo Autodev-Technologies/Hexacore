@@ -93,6 +93,12 @@
     <Compile Include="HTMLPreview.Designer.cs">
       <DependentUpon>HTMLPreview.cs</DependentUpon>
     </Compile>
+    <Compile Include="MixedProject.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MixedProject.Designer.cs">
+      <DependentUpon>MixedProject.cs</DependentUpon>
+    </Compile>
     <Compile Include="NewItem.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -121,6 +127,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="HTMLPreview.resx">
       <DependentUpon>HTMLPreview.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MixedProject.resx">
+      <DependentUpon>MixedProject.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="NewItem.resx">
       <DependentUpon>NewItem.cs</DependentUpon>

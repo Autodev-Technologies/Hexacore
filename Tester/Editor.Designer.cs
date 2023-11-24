@@ -31,7 +31,7 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Editor));
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Script");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("C# project");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Project");
             this.ssMain = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.lbWordUnderMouse = new System.Windows.Forms.ToolStripStatusLabel();
@@ -123,15 +123,16 @@
             this.treeView4 = new System.Windows.Forms.TreeView();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
             this.treeView3 = new System.Windows.Forms.TreeView();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.faTabStrip2 = new FarsiLibrary.Win.FATabStrip();
             this.faTabStripItem1 = new FarsiLibrary.Win.FATabStripItem();
+            this.FCTBConsole = new FastColoredTextBoxNS.FastColoredTextBox();
             this.toolStrip3 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -160,6 +161,7 @@
             this.aboutINDEVSyntaxiesToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.fullscreenToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.langToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.projLangToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.button4 = new System.Windows.Forms.Button();
             this.imageList2 = new System.Windows.Forms.ImageList(this.components);
             this.button3 = new System.Windows.Forms.Button();
@@ -208,6 +210,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.faTabStrip2)).BeginInit();
             this.faTabStrip2.SuspendLayout();
             this.faTabStripItem1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.FCTBConsole)).BeginInit();
             this.toolStrip3.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.faTabStripItem2.SuspendLayout();
@@ -825,7 +828,7 @@
             this.dgvObjectExplorer.RowTemplate.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.Green;
             this.dgvObjectExplorer.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.dgvObjectExplorer.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvObjectExplorer.Size = new System.Drawing.Size(160, 457);
+            this.dgvObjectExplorer.Size = new System.Drawing.Size(32, 50);
             this.dgvObjectExplorer.TabIndex = 6;
             this.dgvObjectExplorer.VirtualMode = true;
             this.dgvObjectExplorer.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvObjectExplorer_CellMouseDoubleClick);
@@ -863,7 +866,7 @@
             this.Outtab.Location = new System.Drawing.Point(0, 0);
             this.Outtab.Name = "Outtab";
             this.Outtab.SelectedItem = this.ExplorerView;
-            this.Outtab.Size = new System.Drawing.Size(704, 199);
+            this.Outtab.Size = new System.Drawing.Size(150, 96);
             this.Outtab.TabIndex = 2;
             this.Outtab.Text = "faTabStrip1";
             // 
@@ -875,7 +878,7 @@
             this.ExplorerView.IsDrawn = true;
             this.ExplorerView.Name = "ExplorerView";
             this.ExplorerView.Selected = true;
-            this.ExplorerView.Size = new System.Drawing.Size(702, 178);
+            this.ExplorerView.Size = new System.Drawing.Size(148, 75);
             this.ExplorerView.TabIndex = 1;
             this.ExplorerView.Title = "Explorer";
             // 
@@ -885,7 +888,7 @@
             this.toolStripButton3});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(702, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(148, 25);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -910,7 +913,7 @@
             this.treeView1.Location = new System.Drawing.Point(0, 28);
             this.treeView1.Name = "treeView1";
             this.treeView1.SelectedImageIndex = 0;
-            this.treeView1.Size = new System.Drawing.Size(702, 150);
+            this.treeView1.Size = new System.Drawing.Size(148, 47);
             this.treeView1.TabIndex = 0;
             this.treeView1.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView1_NodeMouseDoubleClick);
             // 
@@ -944,6 +947,7 @@
             this.fastColoredTextBox1.DefaultMarkerSize = 8;
             this.fastColoredTextBox1.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.fastColoredTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fastColoredTextBox1.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.fastColoredTextBox1.IsReplaceMode = false;
             this.fastColoredTextBox1.Location = new System.Drawing.Point(1, 20);
             this.fastColoredTextBox1.Name = "fastColoredTextBox1";
@@ -975,7 +979,7 @@
             this.faTabStrip1.Location = new System.Drawing.Point(0, 0);
             this.faTabStrip1.Name = "faTabStrip1";
             this.faTabStrip1.SelectedItem = this.ClassView;
-            this.faTabStrip1.Size = new System.Drawing.Size(190, 507);
+            this.faTabStrip1.Size = new System.Drawing.Size(62, 100);
             this.faTabStrip1.TabIndex = 1;
             this.faTabStrip1.Text = "faTabStrip1";
             // 
@@ -984,10 +988,9 @@
             this.ClassView.CanClose = false;
             this.ClassView.Controls.Add(this.treeView5);
             this.ClassView.Controls.Add(this.dgvObjectExplorer);
-            this.ClassView.IsDrawn = true;
             this.ClassView.Name = "ClassView";
             this.ClassView.Selected = true;
-            this.ClassView.Size = new System.Drawing.Size(188, 486);
+            this.ClassView.Size = new System.Drawing.Size(60, 79);
             this.ClassView.TabIndex = 0;
             this.ClassView.Title = "Class View";
             // 
@@ -1005,7 +1008,7 @@
             this.treeView5.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1});
             this.treeView5.ShowRootLines = false;
-            this.treeView5.Size = new System.Drawing.Size(173, 26);
+            this.treeView5.Size = new System.Drawing.Size(45, 26);
             this.treeView5.TabIndex = 7;
             this.treeView5.Visible = false;
             // 
@@ -1016,6 +1019,17 @@
             this.imageList3.Images.SetKeyName(0, "C#ProjectIcon.png");
             this.imageList3.Images.SetKeyName(1, "C#FileIcon.png");
             this.imageList3.Images.SetKeyName(2, "Open.png");
+            this.imageList3.Images.SetKeyName(3, "");
+            this.imageList3.Images.SetKeyName(4, "");
+            this.imageList3.Images.SetKeyName(5, "");
+            this.imageList3.Images.SetKeyName(6, "");
+            this.imageList3.Images.SetKeyName(7, "");
+            this.imageList3.Images.SetKeyName(8, "");
+            this.imageList3.Images.SetKeyName(9, "");
+            this.imageList3.Images.SetKeyName(10, "");
+            this.imageList3.Images.SetKeyName(11, "");
+            this.imageList3.Images.SetKeyName(12, "");
+            this.imageList3.Images.SetKeyName(13, "NothingIcon.png");
             // 
             // splitContainer1
             // 
@@ -1049,11 +1063,11 @@
             // splitContainer4.Panel1
             // 
             this.splitContainer4.Panel1.Controls.Add(this.faTabStrip1);
+            this.splitContainer4.Panel1Collapsed = true;
             // 
             // splitContainer4.Panel2
             // 
             this.splitContainer4.Panel2.Controls.Add(this.faTabStrip3);
-            this.splitContainer4.Panel2Collapsed = true;
             this.splitContainer4.Size = new System.Drawing.Size(190, 507);
             this.splitContainer4.SplitterDistance = 62;
             this.splitContainer4.TabIndex = 2;
@@ -1067,7 +1081,7 @@
             this.faTabStrip3.Location = new System.Drawing.Point(0, 0);
             this.faTabStrip3.Name = "faTabStrip3";
             this.faTabStrip3.SelectedItem = this.faTabStripItem3;
-            this.faTabStrip3.Size = new System.Drawing.Size(96, 100);
+            this.faTabStrip3.Size = new System.Drawing.Size(190, 507);
             this.faTabStrip3.TabIndex = 11;
             this.faTabStrip3.Text = "faTabStrip3";
             // 
@@ -1077,9 +1091,10 @@
             this.faTabStripItem3.Controls.Add(this.treeView4);
             this.faTabStripItem3.Controls.Add(this.toolStrip2);
             this.faTabStripItem3.Controls.Add(this.treeView3);
+            this.faTabStripItem3.IsDrawn = true;
             this.faTabStripItem3.Name = "faTabStripItem3";
             this.faTabStripItem3.Selected = true;
-            this.faTabStripItem3.Size = new System.Drawing.Size(94, 79);
+            this.faTabStripItem3.Size = new System.Drawing.Size(188, 486);
             this.faTabStripItem3.TabIndex = 0;
             this.faTabStripItem3.Title = "Solution Explorer";
             // 
@@ -1087,31 +1102,28 @@
             // 
             this.treeView4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.treeView4.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.treeView4.Font = new System.Drawing.Font("Bahnschrift SemiBold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.treeView4.ImageIndex = 0;
             this.treeView4.ImageList = this.imageList3;
-            this.treeView4.ItemHeight = 21;
             this.treeView4.Location = new System.Drawing.Point(18, 28);
             this.treeView4.Name = "treeView4";
             treeNode2.Name = "Node0";
-            treeNode2.Text = "C# project";
+            treeNode2.Text = "Project";
             this.treeView4.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode2});
-            this.treeView4.PathSeparator = "";
-            this.treeView4.Scrollable = false;
             this.treeView4.SelectedImageIndex = 0;
-            this.treeView4.ShowNodeToolTips = true;
             this.treeView4.ShowRootLines = false;
-            this.treeView4.Size = new System.Drawing.Size(138, 20);
+            this.treeView4.Size = new System.Drawing.Size(171, 20);
             this.treeView4.TabIndex = 4;
+            this.treeView4.Visible = false;
             // 
             // toolStrip2
             // 
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripButton2});
+            this.toolStripButton2,
+            this.toolStripLabel2});
             this.toolStrip2.Location = new System.Drawing.Point(0, 0);
             this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(94, 25);
+            this.toolStrip2.Size = new System.Drawing.Size(188, 25);
             this.toolStrip2.TabIndex = 2;
             this.toolStrip2.Text = "toolStrip2";
             // 
@@ -1120,9 +1132,18 @@
             this.toolStripButton2.Image = global::Tester.Properties.Resources.Open1;
             this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton2.Name = "toolStripButton2";
-            this.toolStripButton2.Size = new System.Drawing.Size(123, 20);
-            this.toolStripButton2.Text = "Open a C# Project";
+            this.toolStripButton2.Size = new System.Drawing.Size(105, 22);
+            this.toolStripButton2.Text = "Open a Project";
+            this.toolStripButton2.ToolTipText = "Open a Project";
             this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click_1);
+            // 
+            // toolStripLabel2
+            // 
+            this.toolStripLabel2.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.toolStripLabel2.Name = "toolStripLabel2";
+            this.toolStripLabel2.Size = new System.Drawing.Size(86, 15);
+            this.toolStripLabel2.Text = "toolStripLabel2";
+            this.toolStripLabel2.Visible = false;
             // 
             // treeView3
             // 
@@ -1138,7 +1159,7 @@
             this.treeView3.Location = new System.Drawing.Point(18, 51);
             this.treeView3.Name = "treeView3";
             this.treeView3.SelectedImageIndex = 0;
-            this.treeView3.Size = new System.Drawing.Size(76, 28);
+            this.treeView3.Size = new System.Drawing.Size(170, 435);
             this.treeView3.TabIndex = 3;
             this.treeView3.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView3_NodeMouseDoubleClick);
             // 
@@ -1175,11 +1196,11 @@
             // splitContainer2.Panel1
             // 
             this.splitContainer2.Panel1.Controls.Add(this.Outtab);
+            this.splitContainer2.Panel1Collapsed = true;
             // 
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.faTabStrip2);
-            this.splitContainer2.Panel2Collapsed = true;
             this.splitContainer2.Size = new System.Drawing.Size(704, 199);
             this.splitContainer2.SplitterDistance = 96;
             this.splitContainer2.TabIndex = 3;
@@ -1193,20 +1214,59 @@
             this.faTabStrip2.Location = new System.Drawing.Point(0, 0);
             this.faTabStrip2.Name = "faTabStrip2";
             this.faTabStrip2.SelectedItem = this.faTabStripItem1;
-            this.faTabStrip2.Size = new System.Drawing.Size(150, 46);
+            this.faTabStrip2.Size = new System.Drawing.Size(704, 199);
             this.faTabStrip2.TabIndex = 3;
             this.faTabStrip2.Text = "faTabStrip1";
             // 
             // faTabStripItem1
             // 
+            this.faTabStripItem1.Controls.Add(this.FCTBConsole);
             this.faTabStripItem1.Controls.Add(this.toolStrip3);
-            this.faTabStripItem1.Controls.Add(this.richTextBox1);
             this.faTabStripItem1.IsDrawn = true;
             this.faTabStripItem1.Name = "faTabStripItem1";
             this.faTabStripItem1.Selected = true;
-            this.faTabStripItem1.Size = new System.Drawing.Size(148, 25);
+            this.faTabStripItem1.Size = new System.Drawing.Size(702, 178);
             this.faTabStripItem1.TabIndex = 0;
             this.faTabStripItem1.Title = "Output";
+            // 
+            // FCTBConsole
+            // 
+            this.FCTBConsole.AcceptsTab = false;
+            this.FCTBConsole.AllowMacroRecording = false;
+            this.FCTBConsole.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.FCTBConsole.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
+            this.FCTBConsole.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
+    "?<range>:)\\s*(?<range>[^;]+);";
+            this.FCTBConsole.AutoScrollMinSize = new System.Drawing.Size(27, 14);
+            this.FCTBConsole.BackBrush = null;
+            this.FCTBConsole.CharHeight = 14;
+            this.FCTBConsole.CharWidth = 8;
+            this.FCTBConsole.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.FCTBConsole.DefaultMarkerSize = 8;
+            this.FCTBConsole.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.FCTBConsole.Font = new System.Drawing.Font("Courier New", 9.75F);
+            this.FCTBConsole.IsReplaceMode = false;
+            this.FCTBConsole.Location = new System.Drawing.Point(0, 28);
+            this.FCTBConsole.Name = "FCTBConsole";
+            this.FCTBConsole.Paddings = new System.Windows.Forms.Padding(0);
+            this.FCTBConsole.ReadOnly = true;
+            this.FCTBConsole.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.FCTBConsole.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("FCTBConsole.ServiceColors")));
+            this.FCTBConsole.Size = new System.Drawing.Size(702, 153);
+            this.FCTBConsole.TabIndex = 5;
+            this.FCTBConsole.Zoom = 100;
             // 
             // toolStrip3
             // 
@@ -1214,7 +1274,7 @@
             this.toolStripButton4});
             this.toolStrip3.Location = new System.Drawing.Point(0, 0);
             this.toolStrip3.Name = "toolStrip3";
-            this.toolStrip3.Size = new System.Drawing.Size(148, 25);
+            this.toolStrip3.Size = new System.Drawing.Size(702, 25);
             this.toolStrip3.TabIndex = 1;
             this.toolStrip3.Text = "toolStrip3";
             // 
@@ -1225,21 +1285,7 @@
             this.toolStripButton4.Name = "toolStripButton4";
             this.toolStripButton4.Size = new System.Drawing.Size(54, 22);
             this.toolStripButton4.Text = "Clear";
-            // 
-            // richTextBox1
-            // 
-            this.richTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.richTextBox1.BackColor = System.Drawing.Color.White;
-            this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.richTextBox1.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBox1.Location = new System.Drawing.Point(0, 28);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.ReadOnly = true;
-            this.richTextBox1.Size = new System.Drawing.Size(148, 0);
-            this.richTextBox1.TabIndex = 0;
-            this.richTextBox1.Text = "";
+            this.toolStripButton4.Click += new System.EventHandler(this.toolStripButton4_Click);
             // 
             // menuStrip1
             // 
@@ -1251,7 +1297,8 @@
             this.debugToolStripMenuItem,
             this.helpToolStripMenuItem,
             this.fullscreenToolStripMenuItem1,
-            this.langToolStripMenuItem});
+            this.langToolStripMenuItem,
+            this.projLangToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(939, 24);
@@ -1469,6 +1516,15 @@
             this.langToolStripMenuItem.Text = "N/A";
             this.langToolStripMenuItem.Visible = false;
             this.langToolStripMenuItem.TextChanged += new System.EventHandler(this.langToolStripMenuItem_TextChanged);
+            // 
+            // projLangToolStripMenuItem
+            // 
+            this.projLangToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.projLangToolStripMenuItem.Name = "projLangToolStripMenuItem";
+            this.projLangToolStripMenuItem.Size = new System.Drawing.Size(69, 20);
+            this.projLangToolStripMenuItem.Text = "ProjLang:";
+            this.projLangToolStripMenuItem.Visible = false;
+            this.projLangToolStripMenuItem.TextChanged += new System.EventHandler(this.projLangToolStripMenuItem_TextChanged);
             // 
             // button4
             // 
@@ -1693,6 +1749,7 @@
             this.faTabStrip2.ResumeLayout(false);
             this.faTabStripItem1.ResumeLayout(false);
             this.faTabStripItem1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.FCTBConsole)).EndInit();
             this.toolStrip3.ResumeLayout(false);
             this.toolStrip3.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
@@ -1824,7 +1881,6 @@
         private FarsiLibrary.Win.FATabStripItem faTabStripItem1;
         private System.Windows.Forms.ToolStrip toolStrip3;
         private System.Windows.Forms.ToolStripButton toolStripButton4;
-        private System.Windows.Forms.RichTextBox richTextBox1;
         private FarsiLibrary.Win.FATabStripItem faTabStripItem2;
         private System.Windows.Forms.ToolStrip toolStrip4;
         private System.Windows.Forms.ToolStripButton toolStripButton5;
@@ -1842,11 +1898,14 @@
         private System.Windows.Forms.TreeView treeView3;
         private System.Windows.Forms.ToolStrip toolStrip2;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
-        private System.Windows.Forms.TreeView treeView4;
         private System.Windows.Forms.ImageList imageList3;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog2;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.ImageList imageList4;
         private System.Windows.Forms.TreeView treeView5;
+        private System.Windows.Forms.ToolStripMenuItem projLangToolStripMenuItem;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel2;
+        private System.Windows.Forms.TreeView treeView4;
+        private FastColoredTextBoxNS.FastColoredTextBox FCTBConsole;
     }
 }
