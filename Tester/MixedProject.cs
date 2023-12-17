@@ -26,9 +26,25 @@ namespace Tester
             {
                 Editor.instance.ProjLangua.Text = "ProjLang:C#";
             }
+            if (comboBox1.Text == "C++")
+            {
+                Editor.instance.ProjLangua.Text = "ProjLang:C++";
+            }
+            if (comboBox1.Text == "C")
+            {
+                Editor.instance.ProjLangua.Text = "ProjLang:C";
+            }
             if (comboBox1.Text == "Lua")
             {
                 Editor.instance.ProjLangua.Text = "ProjLang:Lua";
+            }
+            if (comboBox1.Text == "Java")
+            {
+                Editor.instance.ProjLangua.Text = "ProjLang:Java";
+            }
+            if (comboBox1.Text == "Python")
+            {
+                Editor.instance.ProjLangua.Text = "ProjLang:Python";
             }
             if (comboBox1.Text == "Web page")
             {

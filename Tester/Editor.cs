@@ -14,11 +14,13 @@ using System.Threading;
 using System.Drawing.Drawing2D;
 using Microsoft.CSharp;
 using System.CodeDom.Compiler;
+using System.Windows.Forms.Design;
 
 namespace Tester
 {
     public partial class Editor : Form
     {
+        // Csharp
         string[] keywords = { "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked", "class", "const", "continue", "decimal", "default", "delegate", "do", "double", "else", "enum", "event", "explicit", "extern", "false", "finally", "fixed", "float", "for", "foreach", "goto", "if", "implicit", "in", "int", "interface", "internal", "is", "lock", "long", "namespace", "new", "null", "object", "operator", "out", "override", "params", "private", "protected", "public", "readonly", "ref", "return", "sbyte", "sealed", "short", "sizeof", "stackalloc", "static", "string", "struct", "switch", "this", "throw", "true", "try", "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort", "using", "virtual", "void", "volatile", "while", "add", "alias", "ascending", "descending", "dynamic", "from", "get", "global", "group", "into", "join", "let", "orderby", "partial", "remove", "select", "set", "value", "var", "where", "yield" };
         string[] methods = { "Equals()", "GetHashCode()", "GetType()", "ToString()" };
         string[] snippets = { "if(^)\n{\n;\n}", "if(^)\n{\n;\n}\nelse\n{\n;\n}", "for(^;;)\n{\n;\n}", "while(^)\n{\n;\n}", "do\n{\n^;\n}while();", "switch(^)\n{\ncase : break;\n}" };
@@ -28,6 +30,14 @@ namespace Tester
                "public void ^()\n{\n;\n}", "private void ^()\n{\n;\n}", "internal void ^()\n{\n;\n}", "protected void ^()\n{\n;\n}",
                "public ^{ get; set; }", "private ^{ get; set; }", "internal ^{ get; set; }", "protected ^{ get; set; }"
                };
+
+        // Lua
+        string[] Luakeywords = { "and", "break", "do", "else", "elseif", "end", "false", "for", "function", "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while" };
+        string[] Luamethods = { "assert", "collectgarbage", "dofile", "error", "gefenv", "getmetatable", "ipairs", "load", "loadfile", "loadstring", "module", "next", "pairs", "pcall", "print", "rawequal", "rawget", "require", "select", "setfenv", "setmetatable", "tonumber", "tostring", "type", "unpack", "xpcall" };
+        string[] LuadeclarationSnippets = {
+               "function ^ ()\n\r\rend", "if ^ then", "elseif ^ then", "print(^)", "for ^ ==  do\n\r\rend", "while not ^ do\n\r\r\rend"
+               };
+
         Style invisibleCharsStyle = new InvisibleCharsRenderer(Pens.Gray);
         Color currentLineColor = Color.FromArgb(100, 210, 210, 255);
         Color changedLineColor = Color.FromArgb(255, 230, 230, 255);
@@ -41,6 +51,8 @@ namespace Tester
         {
             InitializeComponent();
 
+            this.SetStyle(ControlStyles.ResizeRedraw, true);
+
             instance = this;
             SelcelLang = langToolStripMenuItem;
             ProjLangua = projLangToolStripMenuItem;
@@ -53,11 +65,59 @@ namespace Tester
             pasteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("pasteToolStripButton.Image")));
         }
 
+        int grip = 20;
+        int caption = 45;
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == 0x84)
+            {
+                Point p = new Point(m.LParam.ToInt32());
+                p = this.PointToClient(p);
+                if (p.Y <= caption && p.Y >= grip)
+                {
+                    m.Result = (IntPtr)2;
+                    return;
+                }
+                if (p.X >= this.ClientSize.Width - grip && p.Y >= this.ClientSize.Height - grip)
+                {
+                    m.Result = (IntPtr)16;
+                    return;
+                }
+                if (p.X <= grip && p.Y >= this.ClientSize.Height - grip)
+                {
+                    m.Result = (IntPtr)16;
+                }
+                if (p.X <= grip)
+                {
+                    m.Result = (IntPtr)10;
+                }
+                if (p.X >= ClientSize.Width - grip)
+                {
+                    m.Result = (IntPtr)11;
+                    return;
+                }
+                if (p.Y <= grip)
+                {
+                    m.Result = (IntPtr)12;
+                    return;
+                }
+                if (p.Y >= this.ClientSize.Height - grip)
+                {
+                    m.Result = (IntPtr)15;
+                    return;
+                }
+            }
+            base.WndProc(ref m);
+        }
+
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             NewItem NewItemPopup = new NewItem();
             NewItemPopup.Show();
+
+            splitContainer5.Panel1Collapsed = true;
+            splitContainer5.Panel2Collapsed = false;
         }
 
         private Style sameWordsStyle = new MarkerStyle(new SolidBrush(Color.FromArgb(50, Color.Gray)));
@@ -134,24 +194,46 @@ namespace Tester
 
         private void BuildAutocompleteMenu(AutocompleteMenu popupMenu)
         {
-            List<AutocompleteItem> items = new List<AutocompleteItem>();
+            if (CurrentTB.Language == Language.CSharp)
+            {
+                List<AutocompleteItem> items = new List<AutocompleteItem>();
 
-            foreach (var item in snippets)
-                items.Add(new SnippetAutocompleteItem(item) { ImageIndex = 1 });
-            foreach (var item in declarationSnippets)
-                items.Add(new DeclarationSnippet(item) { ImageIndex = 0 });
-            foreach (var item in methods)
-                items.Add(new MethodAutocompleteItem(item) { ImageIndex = 2 });
-            foreach (var item in keywords)
-                items.Add(new AutocompleteItem(item));
+                foreach (var item in snippets)
+                    items.Add(new SnippetAutocompleteItem(item) { ImageIndex = 1 });
+                foreach (var item in declarationSnippets)
+                    items.Add(new DeclarationSnippet(item) { ImageIndex = 0 });
+                foreach (var item in methods)
+                    items.Add(new MethodAutocompleteItem(item) { ImageIndex = 2 });
+                foreach (var item in keywords)
+                    items.Add(new AutocompleteItem(item));
 
-            items.Add(new InsertSpaceSnippet());
-            items.Add(new InsertSpaceSnippet(@"^(\w+)([=<>!:]+)(\w+)$"));
-            items.Add(new InsertEnterSnippet());
+                items.Add(new InsertSpaceSnippet());
+                items.Add(new InsertSpaceSnippet(@"^(\w+)([=<>!:]+)(\w+)$"));
+                items.Add(new InsertEnterSnippet());
 
-            //set as autocomplete source
-            popupMenu.Items.SetAutocompleteItems(items);
-            popupMenu.SearchPattern = @"[\w\.:=!<>]";
+                //set as autocomplete source
+                popupMenu.Items.SetAutocompleteItems(items);
+                popupMenu.SearchPattern = @"[\w\.:=!<>]";
+            }
+            if (CurrentTB.Language == Language.Lua)
+            {
+                List<AutocompleteItem> items = new List<AutocompleteItem>();
+
+                foreach (var item in Luamethods)
+                    items.Add(new MethodAutocompleteItem(item) { ImageIndex = 2 });
+                foreach (var item in Luakeywords)
+                    items.Add(new AutocompleteItem(item));
+                foreach (var item in LuadeclarationSnippets)
+                    items.Add(new DeclarationSnippet(item) { ImageIndex = 1 });
+
+                items.Add(new InsertSpaceSnippet());
+                items.Add(new InsertSpaceSnippet(@"^(\w+)([=<>!:]+)(\w+)$"));
+                items.Add(new InsertEnterSnippet());
+
+                //set as autocomplete source
+                popupMenu.Items.SetAutocompleteItems(items);
+                popupMenu.SearchPattern = @"[\w\.:=!<>]";
+            }
         }
 
         void tb_MouseMove(object sender, MouseEventArgs e)
@@ -414,6 +496,9 @@ namespace Tester
         {
             if (ofdMain.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 CreateTab(ofdMain.FileName);
+
+            splitContainer5.Panel1Collapsed = true;
+            splitContainer5.Panel2Collapsed = false;
         }
 
         FastColoredTextBox CurrentTB
@@ -932,88 +1017,96 @@ namespace Tester
 
         private void toolStripButton18_Click(object sender, EventArgs e)
         {
-            if (CurrentTB.Language == FastColoredTextBoxNS.Language.HTML) //if language is html
+            try
             {
-                HTMLPreview h = new HTMLPreview(CurrentTB.Text);
-                h.Show();
-            }
-            else if (CurrentTB.Language == FastColoredTextBoxNS.Language.CSharp) //if language is c#
-            {
-                toolStripStatusLabel1.Text = "Info: " + "Starting to compile the program";
-
-                SaveFileDialog sf = new SaveFileDialog();
-                sf.Filter = "Executable File|*.exe";
-                string OutPath = "There is no Output Path to create the program";
-                if (sf.ShowDialog() == DialogResult.OK)
+                if (CurrentTB.Language == FastColoredTextBoxNS.Language.HTML) //if language is html
                 {
-                    OutPath = sf.FileName;
+                    HTMLPreview h = new HTMLPreview(CurrentTB.Text);
+                    h.Show();
                 }
-                //compile code:
-                //create c# code compiler
-                CSharpCodeProvider codeProvider = new CSharpCodeProvider();
-                //create new parameters for compilation and add references(libs) to compiled app
-                CompilerParameters parameters = new CompilerParameters(new string[] { "System.dll" });
-                //is compiled code will be executable?(.exe)
-                parameters.GenerateExecutable = true;
-                //output path
-                parameters.OutputAssembly = OutPath;
-                //code sources to compile
-                string[] sources = { CurrentTB.Text };
-                //results of compilation
-                CompilerResults results = codeProvider.CompileAssemblyFromSource(parameters, sources);
-
-                // Get the current time
-                string currentTime = DateTime.Now.ToString();
-
-                timer1.Enabled = true;
-                toolStripProgressBar1.Enabled = true;
-
-                toolStripStatusLabel1.Text = "Info: " + "Loading";
-
-                //if has errors
-                if (results.Errors.Count > 0)
+                else if (CurrentTB.Language == FastColoredTextBoxNS.Language.CSharp) //if language is c#
                 {
-                    string errsText = "";
-                    foreach (CompilerError CompErr in results.Errors)
+                    toolStripStatusLabel1.Text = "Info: " + "Starting to compile the program";
+
+                    SaveFileDialog sf = new SaveFileDialog();
+                    sf.Filter = "Executable File|*.exe";
+                    string OutPath = "There is no Output Path to create the program";
+                    if (sf.ShowDialog() == DialogResult.OK)
                     {
-                        errsText = "Code Error: (" + CompErr.ErrorNumber +
-                                    "), Line " + CompErr.Line +
-                                    ", Column " + CompErr.Column +
-                                    ": " + CompErr.ErrorText + "" +
-                                    Environment.NewLine;
+                        OutPath = sf.FileName;
                     }
-                    //show error message
-                    MessageBox.Show(errsText, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //compile code:
+                    //create c# code compiler
+                    CSharpCodeProvider codeProvider = new CSharpCodeProvider();
+                    //create new parameters for compilation and add references(libs) to compiled app
+                    CompilerParameters parameters = new CompilerParameters(new string[] { "System.dll" });
+                    //is compiled code will be executable?(.exe)
+                    parameters.GenerateExecutable = true;
+                    //output path
+                    parameters.OutputAssembly = OutPath;
+                    //code sources to compile
+                    string[] sources = { CurrentTB.Text };
+                    //results of compilation
+                    CompilerResults results = codeProvider.CompileAssemblyFromSource(parameters, sources);
 
-                    foreach (CompilerError CompErr in results.Errors)
+                    // Get the current time
+                    string currentTime = DateTime.Now.ToString();
+
+
+                    toolStripProgressBar1.Enabled = true;
+
+                    toolStripStatusLabel1.Text = "Info: " + "Loading";
+
+                    //if has errors
+                    if (results.Errors.Count > 0)
                     {
-                        string ErrorText = "Error:" + errsText.ToString();
-;
-                        Log(DateTime.Now, ErrorText, "\r\n", errorStyle);
-                        //richTextBox1.ForeColor = Color.Red;
-                        //richTextBox1.Text += currentTime + ": Error: " + errsText.ToString() + "\n";
+                        string errsText = "";
+                        foreach (CompilerError CompErr in results.Errors)
+                        {
+                            errsText = "Code Error: (" + CompErr.ErrorNumber +
+                                        "), Line " + CompErr.Line +
+                                        ", Column " + CompErr.Column +
+                                        ": " + CompErr.ErrorText + "" +
+                                        Environment.NewLine;
+                        }
+                        //show error message
+                        MessageBox.Show(errsText, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                        foreach (CompilerError CompErr in results.Errors)
+                        {
+                            string ErrorText = "Error:" + errsText.ToString();
+                            ;
+                            Log(DateTime.Now, ErrorText, "\r\n", errorStyle);
+                            //richTextBox1.ForeColor = Color.Red;
+                            //richTextBox1.Text += currentTime + ": Error: " + errsText.ToString() + "\n";
+                        }
+
+                        toolStripStatusLabel1.ForeColor = Color.Red;
+                        toolStripStatusLabel1.Text = currentTime + ": Error: " + errsText.ToString();
+
                     }
+                    else
+                    {
+                        //run compiled app
+                        System.Diagnostics.Process.Start(OutPath);
 
-                    toolStripStatusLabel1.ForeColor = Color.Red;
-                    toolStripStatusLabel1.Text = currentTime + ": Error: " + errsText.ToString();
+                        FCTBConsole.Text = "";
 
+                        Log(DateTime.Now, " Info: Successful Compilation", "\r\n", infoStyle);
+
+                        toolStripStatusLabel1.ForeColor = Color.Green;
+                        toolStripStatusLabel1.Text = currentTime + ": Info: " + "Successful compilation";
+                    }
                 }
                 else
                 {
-                    //run compiled app
-                    System.Diagnostics.Process.Start(OutPath);
-
-                    FCTBConsole.Text = "";
-
-                    Log(DateTime.Now, " Info: Successful Compilation", "\r\n", infoStyle);
-
-                    toolStripStatusLabel1.ForeColor = Color.Green;
-                    toolStripStatusLabel1.Text = currentTime + ": Info: " + "Successful compilation";
+                    MessageBox.Show("INDEV Syntaxies: Cannot open this file!");
                 }
             }
-            else
+            catch (Exception)
             {
-                MessageBox.Show("INDEV Syntaxies: Cannot open this file!");
+                // Handle the exception here
+                MessageBox.Show("Error: There is no tab open to compile code.", "Compiler Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -1059,6 +1152,8 @@ namespace Tester
                 node.Tag = di;
             }
             Cursor.Current = Cursors.Default;
+            splitContainer5.Panel1Collapsed = true;
+            splitContainer5.Panel2Collapsed = false;
         }
 
         private void treeView1_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -1197,6 +1292,7 @@ namespace Tester
 
                     tb.AddStyle(sameWordsStyle);//same words style
                     var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -1263,6 +1359,7 @@ namespace Tester
 
                 tb.AddStyle(sameWordsStyle);//same words style
                 var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                 tab.Tag = fileName;
                 if (fileName != null)
                     tb.OpenFile(fileName);
@@ -1305,6 +1402,8 @@ namespace Tester
         {
             NewItem NewItemPopup = new NewItem();
             NewItemPopup.Show();
+            splitContainer5.Panel1Collapsed = true;
+            splitContainer5.Panel2Collapsed = false;
         }
 
         private void saveToolStripMenuItem_Click_1(object sender, EventArgs e)
@@ -1317,6 +1416,9 @@ namespace Tester
         {
             if (ofdMain.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 CreateTab(ofdMain.FileName);
+
+            splitContainer5.Panel1Collapsed = true;
+            splitContainer5.Panel2Collapsed = false;
         }
 
         private void printToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1478,22 +1580,28 @@ namespace Tester
 
         private void fullscreenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FormBorderStyle = FormBorderStyle.None;
-            WindowState = FormWindowState.Maximized;
-            TopMost = false;
-            viewToolStripMenuItem.Visible = false;
-            fullscreenToolStripMenuItem1.Visible = true;
+            if (WindowState.ToString() == "Normal")
+            {
+                this.WindowState = FormWindowState.Maximized;
+            }
+            else
+            {
+                this.WindowState = FormWindowState.Normal;
+            }
         }
 
         private void Editor_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape)
             {
-                FormBorderStyle = FormBorderStyle.Sizable;
-                WindowState = FormWindowState.Normal;
-                TopMost = true;
-                viewToolStripMenuItem.Visible = true;
-                fullscreenToolStripMenuItem1.Visible = false;
+                if (WindowState.ToString() == "Normal")
+                {
+                    this.WindowState = FormWindowState.Maximized;
+                }
+                else
+                {
+                    this.WindowState = FormWindowState.Normal;
+                }
             }
         }
 
@@ -1502,7 +1610,6 @@ namespace Tester
             FormBorderStyle = FormBorderStyle.Sizable;
             WindowState = FormWindowState.Normal;
             TopMost = true;
-            viewToolStripMenuItem.Visible = true;
             fullscreenToolStripMenuItem1.Visible = false;
         }
 
@@ -1523,6 +1630,272 @@ namespace Tester
                     tb.Language = Language.Custom;
                     tb.AddStyle(sameWordsStyle);//same words style
                     var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:Java")
+            {
+                try
+                {
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.Custom;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.java", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:C++Cpp")
+            {
+                try
+                {
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.Custom;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.cpp", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:C++H")
+            {
+                try
+                {
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.Custom;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.h", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:C")
+            {
+                try
+                {
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.Custom;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.c", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:Python")
+            {
+                try
+                {
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.Custom;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.py", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -1575,7 +1948,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.CSharp;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.cs", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -1628,7 +2002,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.HTML;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.html", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -1681,7 +2056,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.JS;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.js", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -1734,7 +2110,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.JSON;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.json", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -1787,7 +2164,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.Lua;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.lua", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -1840,7 +2218,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.PHP;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.php", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -1893,7 +2272,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.SQL;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.sql", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -1946,7 +2326,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.VB;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.vb", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -1999,7 +2380,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.XML;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.xml", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -2066,6 +2448,272 @@ namespace Tester
                     tb.Language = Language.Custom;
                     tb.AddStyle(sameWordsStyle);//same words style
                     var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:Java")
+            {
+                try
+                {
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.Custom;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.java", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:C++CPP")
+            {
+                try
+                {
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.Custom;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.cpp", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:C++H")
+            {
+                try
+                {
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.Custom;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.h", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:C")
+            {
+                try
+                {
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.Custom;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.c", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
+                    tab.Tag = fileName;
+                    if (fileName != null)
+                        tb.OpenFile(fileName);
+                    tb.Tag = new TbInfo();
+                    tsFiles.AddTab(tab);
+                    tsFiles.SelectedItem = tab;
+                    tb.Focus();
+                    tb.DelayedTextChangedInterval = 1000;
+                    tb.DelayedEventsInterval = 500;
+                    tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
+                    tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
+                    tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                    tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                    tb.ChangedLineColor = changedLineColor;
+                    if (btHighlightCurrentLine.Checked)
+                        tb.CurrentLineColor = currentLineColor;
+                    tb.ShowFoldingLines = btShowFoldingLines.Checked;
+                    tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                    //create autocomplete popup menu
+                    AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
+                    popupMenu.Items.ImageList = ilAutocomplete;
+                    popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                    BuildAutocompleteMenu(popupMenu);
+                    (tb.Tag as TbInfo).popupMenu = popupMenu;
+
+                    var dm = new DocumentMap();
+                    dm.Dock = DockStyle.Right;
+                    dm.Size = new Size(82, 340);
+                    dm.Target = tb;
+                    langToolStripMenuItem.Text = "Lang";
+                }
+                catch (Exception ex)
+                {
+                    if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == System.Windows.Forms.DialogResult.Retry)
+                        CreateTab(fileName);
+                    langToolStripMenuItem.Text = "Lang";
+                }
+            }
+            else if (langToolStripMenuItem.Text == "Lang:Python")
+            {
+                try
+                {
+                    var tb = new FastColoredTextBox();
+                    tb.Font = new Font("Consolas", 9.75f);
+                    tb.ContextMenuStrip = cmMain;
+                    tb.Dock = DockStyle.Fill;
+                    tb.BorderStyle = BorderStyle.None;
+                    //tb.VirtualSpace = true;
+                    tb.LeftPadding = 17;
+                    tb.Language = Language.Custom;
+                    tb.AddStyle(sameWordsStyle);//same words style
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.py", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -2119,7 +2767,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.CSharp;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.cs", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -2173,7 +2822,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.HTML;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.html", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -2226,7 +2876,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.JS;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.js", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -2279,7 +2930,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.JSON;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.json", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -2332,7 +2984,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.Lua;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.lua", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -2385,7 +3038,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.PHP;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.php", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -2438,7 +3092,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.SQL;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.sql", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -2491,7 +3146,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.VB;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.vb", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -2544,7 +3200,8 @@ namespace Tester
                     tb.LeftPadding = 17;
                     tb.Language = Language.XML;
                     tb.AddStyle(sameWordsStyle);//same words style
-                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "new.xml", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -2723,6 +3380,119 @@ namespace Tester
                     }
                 }
             }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:C++")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView3.Nodes.Clear();
+                    treeView4.ImageIndex = 14;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "C++ Project";
+                    treeView4.Nodes[0].ImageIndex = 14;
+                    treeView4.Nodes[0].SelectedImageIndex = 14;
+
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".cpp"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 16, selectedImageIndex: 16);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".h"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 18, selectedImageIndex: 18);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:C")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView3.Nodes.Clear();
+                    treeView4.ImageIndex = 17;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "C Project";
+                    treeView4.Nodes[0].ImageIndex = 17;
+                    treeView4.Nodes[0].SelectedImageIndex = 17;
+
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".c"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 15, selectedImageIndex: 15);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:Java")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView3.Nodes.Clear();
+                    treeView4.ImageIndex = 20;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "Java Project";
+                    treeView4.Nodes[0].ImageIndex = 20;
+                    treeView4.Nodes[0].SelectedImageIndex = 20;
+
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".java"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 19, selectedImageIndex: 19);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:Python")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView3.Nodes.Clear();
+                    treeView4.ImageIndex = 22;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "Python Project";
+                    treeView4.Nodes[0].ImageIndex = 22;
+                    treeView4.Nodes[0].SelectedImageIndex = 22;
+
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".py"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 21, selectedImageIndex: 21);
+                        node.Tag = di;
+                    }
+                }
+            }
             else if (projLangToolStripMenuItem.Text == "ProjLang:Lua")
             {
                 foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
@@ -2872,6 +3642,8 @@ namespace Tester
             }
 
             Cursor.Current = Cursors.Default;
+            splitContainer5.Panel1Collapsed = true;
+            splitContainer5.Panel2Collapsed = false;
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -2939,6 +3711,77 @@ namespace Tester
                         }
                     }
                 }
+
+                if (projLangToolStripMenuItem.Text == "ProjLang:C++")
+                {
+                    foreach (var item in Directory.GetFiles(((DirectoryInfo)e.Node.Tag).FullName))
+                    {
+                        treeView4.Nodes[0].ImageIndex = 0;
+                        treeView4.Nodes[0].SelectedImageIndex = 0;
+
+                        FileInfo di = new FileInfo(item);
+
+                        if (di.Name.EndsWith(".cpp"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 16, selectedImageIndex: 16);
+                            node.Tag = di;
+                        }
+                        if (di.Name.EndsWith(".h"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 18, selectedImageIndex: 18);
+                            node.Tag = di;
+                        }
+                    }
+                }
+                if (projLangToolStripMenuItem.Text == "ProjLang:C")
+                {
+                    foreach (var item in Directory.GetFiles(((DirectoryInfo)e.Node.Tag).FullName))
+                    {
+                        treeView4.Nodes[0].ImageIndex = 0;
+                        treeView4.Nodes[0].SelectedImageIndex = 0;
+
+                        FileInfo di = new FileInfo(item);
+
+                        if (di.Name.EndsWith(".c"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 15, selectedImageIndex: 15);
+                            node.Tag = di;
+                        }
+                    }
+                }
+                if (projLangToolStripMenuItem.Text == "ProjLang:Java")
+                {
+                    foreach (var item in Directory.GetFiles(((DirectoryInfo)e.Node.Tag).FullName))
+                    {
+                        treeView4.Nodes[0].ImageIndex = 0;
+                        treeView4.Nodes[0].SelectedImageIndex = 0;
+
+                        FileInfo di = new FileInfo(item);
+
+                        if (di.Name.EndsWith(".java"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 19, selectedImageIndex: 19);
+                            node.Tag = di;
+                        }
+                    }
+                }
+                if (projLangToolStripMenuItem.Text == "ProjLang:Python")
+                {
+                    foreach (var item in Directory.GetFiles(((DirectoryInfo)e.Node.Tag).FullName))
+                    {
+                        treeView4.Nodes[0].ImageIndex = 0;
+                        treeView4.Nodes[0].SelectedImageIndex = 0;
+
+                        FileInfo di = new FileInfo(item);
+
+                        if (di.Name.EndsWith(".py"))
+                        {
+                            var node = e.Node.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 21, selectedImageIndex: 21);
+                            node.Tag = di;
+                        }
+                    }
+                }
+
                 else if (projLangToolStripMenuItem.Text == "ProjLang:Lua")
                 {
                     foreach (var item in Directory.GetFiles(((DirectoryInfo)e.Node.Tag).FullName))
@@ -3163,6 +4006,7 @@ namespace Tester
 
                     tb.AddStyle(sameWordsStyle);//same words style
                     var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+                    label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
                     tab.Tag = fileName;
                     if (fileName != null)
                         tb.OpenFile(fileName);
@@ -3224,6 +4068,8 @@ namespace Tester
                     node.Tag = di;
                 }
 
+                
+
                 foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
                 {
                     treeView4.ImageIndex = 0;
@@ -3241,6 +4087,125 @@ namespace Tester
                     }
                 }
             }
+
+            else if (projLangToolStripMenuItem.Text == "ProjLang:C++")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView4.ImageIndex = 14;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "C++ Project";
+                    treeView4.Nodes[0].ImageIndex = 14;
+                    treeView4.Nodes[0].SelectedImageIndex = 14;
+
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".cpp"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 16, selectedImageIndex: 16);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".h"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 18, selectedImageIndex: 18);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:C")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView4.ImageIndex = 17;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "C Project";
+                    treeView4.Nodes[0].ImageIndex = 17;
+                    treeView4.Nodes[0].SelectedImageIndex = 17;
+
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".c"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 15, selectedImageIndex: 15);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:Java")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView4.ImageIndex = 20;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "Java Project";
+                    treeView4.Nodes[0].ImageIndex = 20;
+                    treeView4.Nodes[0].SelectedImageIndex = 20;
+
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".java"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 19, selectedImageIndex: 19);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:Python")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView4.ImageIndex = 22;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "Python Project";
+                    treeView4.Nodes[0].ImageIndex = 22;
+                    treeView4.Nodes[0].SelectedImageIndex = 22;
+
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".py"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 21, selectedImageIndex: 21);
+                        node.Tag = di;
+                    }
+                }
+            }
+
             else if (projLangToolStripMenuItem.Text == "ProjLang:Lua")
             {
                 foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
@@ -3445,6 +4410,715 @@ namespace Tester
         private void toolStripButton4_Click(object sender, EventArgs e)
         {
             FCTBConsole.Text = "";
+        }
+
+        private bool dragging = false;
+        private Point startPoint = new Point(0, 0);
+
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+        }
+
+        private void toolStripMenuItem5_Click(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Maximized)
+            {
+                this.WindowState = FormWindowState.Normal;
+                this.FormBorderStyle = FormBorderStyle.None;
+            }
+            else if (this.WindowState == FormWindowState.Normal)
+            {
+                this.WindowState = FormWindowState.Maximized;
+                this.FormBorderStyle = FormBorderStyle.Sizable;
+            }
+            else
+            {
+                
+            }
+        }
+
+        private void HandleFormClosing(FormClosingEventArgs a)
+        {
+            List<FATabStripItem> list = new List<FATabStripItem>();
+            foreach (FATabStripItem tab in tsFiles.Items)
+                list.Add(tab);
+            foreach (var tab in list)
+            {
+                TabStripItemClosingEventArgs args = new TabStripItemClosingEventArgs(tab);
+                tsFiles_TabStripItemClosing(args);
+                if (args.Cancel)
+                {
+                    a.Cancel = true;
+                    return;
+                }
+                tsFiles.RemoveTab(tab);
+            }
+            Application.Exit();
+        }
+
+        private void EnteringHTMLEditor(FormClosingEventArgs a)
+        {
+            List<FATabStripItem> list = new List<FATabStripItem>();
+            foreach (FATabStripItem tab in tsFiles.Items)
+                list.Add(tab);
+            foreach (var tab in list)
+            {
+                TabStripItemClosingEventArgs args = new TabStripItemClosingEventArgs(tab);
+                tsFiles_TabStripItemClosing(args);
+                if (args.Cancel)
+                {
+                    a.Cancel = true;
+                    return;
+                }
+                tsFiles.RemoveTab(tab);
+            }
+            HTMLEditor HTMLEdi = new HTMLEditor();
+            HTMLEdi.Show();
+            this.Hide();
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            FormClosingEventArgs a = new FormClosingEventArgs(CloseReason.ApplicationExitCall, false);
+
+            HandleFormClosing(a);
+        }
+
+        private void menuStrip1_MouseDown(object sender, MouseEventArgs e)
+        {
+            dragging = true;
+            startPoint = new Point(e.X, e.Y);
+        }
+
+        private void menuStrip1_MouseUp(object sender, MouseEventArgs e)
+        {
+            dragging = false;
+        }
+
+        private void menuStrip1_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (dragging)
+            {
+                Point p = PointToScreen(e.Location);
+                Location = new Point(p.X - this.startPoint.X, p.Y - this.startPoint.Y);
+            }
+        }
+
+        private void toolStripMenuItem12_Click(object sender, EventArgs e)
+        {
+        
+        }
+
+        private void toolStripMenuItem13_Click(object sender, EventArgs e)
+        {
+            NewItem NewItemPopup = new NewItem();
+            NewItemPopup.Show();
+            splitContainer5.Panel1Collapsed = true;
+            splitContainer5.Panel2Collapsed = false;
+        }
+
+        private void toolStripMenuItem14_Click(object sender, EventArgs e)
+        {
+            if (ofdMain.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                CreateTab(ofdMain.FileName);
+            splitContainer5.Panel1Collapsed = true;
+            splitContainer5.Panel2Collapsed = false;
+        }
+
+        private void toolStripMenuItem15_Click(object sender, EventArgs e)
+        {
+            if (tsFiles.SelectedItem != null)
+                Save(tsFiles.SelectedItem);
+        }
+
+        private void toolStripMenuItem16_Click(object sender, EventArgs e)
+        {
+            if (tsFiles.SelectedItem != null)
+            {
+                string oldFile = tsFiles.SelectedItem.Tag as string;
+                tsFiles.SelectedItem.Tag = null;
+                if (!Save(tsFiles.SelectedItem))
+                    if (oldFile != null)
+                    {
+                        tsFiles.SelectedItem.Tag = oldFile;
+                        tsFiles.SelectedItem.Title = Path.GetFileName(oldFile);
+                    }
+            }
+        }
+
+        private void toolStripMenuItem17_Click(object sender, EventArgs e)
+        {
+
+            if (CurrentTB != null)
+            {
+                var settings = new PrintDialogSettings();
+                settings.Title = tsFiles.SelectedItem.Title;
+                settings.Header = "&b&w&b";
+                settings.Footer = "&b&p";
+                CurrentTB.Print(settings);
+            }
+        }
+
+        private void toolStripMenuItem18_Click(object sender, EventArgs e)
+        {
+            FormClosingEventArgs a = new FormClosingEventArgs(CloseReason.ApplicationExitCall, false);
+            HandleFormClosing(a);
+        }
+
+        private void button12_Click(object sender, EventArgs e)
+        {
+            NewItem NewItemPopup = new NewItem();
+            NewItemPopup.Show();
+            splitContainer5.Panel1Collapsed = true;
+            splitContainer5.Panel2Collapsed = false;
+        }
+
+        private void button13_Click(object sender, EventArgs e)
+        {
+            if (ofdMain.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                CreateTab(ofdMain.FileName);
+
+            splitContainer5.Panel1Collapsed = true;
+            splitContainer5.Panel2Collapsed = false;
+        }
+
+        private void button14_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialog2.ShowDialog();
+            Cursor.Current = Cursors.WaitCursor;
+
+            MixedProject ProjLanguage = new MixedProject();
+            ProjLanguage.Show();
+
+            treeView3.Nodes.Clear();
+             
+            //
+
+            if (projLangToolStripMenuItem.Text == "ProjLang:C#")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView3.Nodes.Clear();
+                    treeView4.ImageIndex = 0;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "C# Project";
+                    treeView4.Nodes[0].ImageIndex = 0;
+                    treeView4.Nodes[0].SelectedImageIndex = 0;
+
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".cs"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 5, selectedImageIndex: 5);
+                        node.Tag = di;
+                    }
+                }
+            }
+
+            else if (projLangToolStripMenuItem.Text == "ProjLang:C++")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView4.ImageIndex = 14;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "C++ Project";
+                    treeView4.Nodes[0].ImageIndex = 14;
+                    treeView4.Nodes[0].SelectedImageIndex = 14;
+
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".cpp"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 16, selectedImageIndex: 16);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".h"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 18, selectedImageIndex: 18);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:C")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView4.ImageIndex = 17;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "C Project";
+                    treeView4.Nodes[0].ImageIndex = 17;
+                    treeView4.Nodes[0].SelectedImageIndex = 17;
+
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".c"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 15, selectedImageIndex: 15);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:Java")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView4.ImageIndex = 20;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "Java Project";
+                    treeView4.Nodes[0].ImageIndex = 20;
+                    treeView4.Nodes[0].SelectedImageIndex = 20;
+
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".java"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 19, selectedImageIndex: 19);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:Python")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView4.ImageIndex = 22;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "Python Project";
+                    treeView4.Nodes[0].ImageIndex = 22;
+                    treeView4.Nodes[0].SelectedImageIndex = 22;
+
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".py"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 21, selectedImageIndex: 21);
+                        node.Tag = di;
+                    }
+                }
+            }
+
+            else if (projLangToolStripMenuItem.Text == "ProjLang:Lua")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView3.Nodes.Clear();
+                    treeView4.ImageIndex = 3;
+                    treeView4.Nodes[0].SelectedImageIndex = 3;
+                    treeView4.Nodes[0].ImageIndex = 3;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "Lua Project";
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".lua"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 9, selectedImageIndex: 9);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".luac"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 9, selectedImageIndex: 9);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:WebPage")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView3.Nodes.Clear();
+                    treeView4.ImageIndex = 2;
+                    treeView4.Nodes[0].SelectedImageIndex = 2;
+                    treeView4.Nodes[0].ImageIndex = 2;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "Web Project";
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".html"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".htm"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".xhtml"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".shtml"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 7, selectedImageIndex: 7);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".js"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 11, selectedImageIndex: 11);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".css"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 8, selectedImageIndex: 8);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:PHP")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView3.Nodes.Clear();
+                    treeView4.ImageIndex = 4;
+                    treeView4.Nodes[0].SelectedImageIndex = 4;
+                    treeView4.Nodes[0].ImageIndex = 4;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "PHP Project";
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".php"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 10, selectedImageIndex: 10);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".phps"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 10, selectedImageIndex: 10);
+                        node.Tag = di;
+                    }
+                    if (di.Name.EndsWith(".phtml"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 10, selectedImageIndex: 10);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else if (projLangToolStripMenuItem.Text == "ProjLang:VB")
+            {
+                foreach (var item in Directory.GetDirectories(folderBrowserDialog2.SelectedPath))
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 12, selectedImageIndex: 12);
+                    node.Tag = di;
+                }
+
+                foreach (var item in Directory.GetFiles(folderBrowserDialog2.SelectedPath))
+                {
+                    treeView3.Nodes.Clear();
+                    treeView4.ImageIndex = 1;
+                    treeView4.Nodes[0].SelectedImageIndex = 1;
+                    treeView4.Nodes[0].ImageIndex = 1;
+                    treeView4.Visible = true;
+                    treeView4.Nodes[0].Text = "Visual Basic Project";
+                    FileInfo di = new FileInfo(item);
+
+                    if (di.Name.EndsWith(".vb"))
+                    {
+                        var node = treeView3.Nodes.Add(key: di.Name, text: di.Name, imageIndex: 6, selectedImageIndex: 6);
+                        node.Tag = di;
+                    }
+                }
+            }
+            else
+            {
+
+            }
+
+            Cursor.Current = Cursors.Default;
+            splitContainer5.Panel1Collapsed = true;
+            splitContainer5.Panel2Collapsed = false;
+        }
+
+        private void button15_Click(object sender, EventArgs e)
+        {
+            splitContainer5.Panel1Collapsed = true;
+            splitContainer5.Panel2Collapsed = false;
+        }
+
+        private void toolStripMenuItem20_Click(object sender, EventArgs e)
+        {
+            NewItem NewItemPopup = new NewItem();
+            NewItemPopup.Show();
+            splitContainer5.Panel1Collapsed = true;
+            splitContainer5.Panel2Collapsed = false;
+        }
+
+        private void toolStripMenuItem21_Click(object sender, EventArgs e)
+        {
+            if (ofdMain.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                CreateTab(ofdMain.FileName);
+
+            splitContainer5.Panel1Collapsed = true;
+            splitContainer5.Panel2Collapsed = false;
+        }
+
+        private void toolStripMenuItem22_Click(object sender, EventArgs e)
+        {
+            if (tsFiles.SelectedItem != null)
+                Save(tsFiles.SelectedItem);
+        }
+
+        private void toolStripMenuItem23_Click(object sender, EventArgs e)
+        {
+            if (tsFiles.SelectedItem != null)
+            {
+                string oldFile = tsFiles.SelectedItem.Tag as string;
+                tsFiles.SelectedItem.Tag = null;
+                if (!Save(tsFiles.SelectedItem))
+                    if (oldFile != null)
+                    {
+                        tsFiles.SelectedItem.Tag = oldFile;
+                        tsFiles.SelectedItem.Title = Path.GetFileName(oldFile);
+                    }
+            }
+        }
+
+        private void toolStripMenuItem24_Click(object sender, EventArgs e)
+        {
+            if (CurrentTB != null)
+            {
+                var settings = new PrintDialogSettings();
+                settings.Title = tsFiles.SelectedItem.Title;
+                settings.Header = "&b&w&b";
+                settings.Footer = "&b&p";
+                CurrentTB.Print(settings);
+            }
+        }
+
+        private void toolStripMenuItem25_Click(object sender, EventArgs e)
+        {
+            FormClosingEventArgs a = new FormClosingEventArgs(CloseReason.ApplicationExitCall, false);
+            HandleFormClosing(a);
+        }
+
+        private void toolStripMenuItem19_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void toolStripMenuItem27_Click(object sender, EventArgs e)
+        {
+            CurrentTB.ShowGoToDialog();
+        }
+
+        private void toolStripMenuItem28_Click(object sender, EventArgs e)
+        {
+            CurrentTB.ShowReplaceDialog();
+        }
+
+        private void toolStripMenuItem29_Click(object sender, EventArgs e)
+        {
+            if (CurrentTB.UndoEnabled)
+                CurrentTB.Undo();
+        }
+
+        private void toolStripMenuItem30_Click(object sender, EventArgs e)
+        {
+            if (CurrentTB.RedoEnabled)
+                CurrentTB.Redo();
+        }
+
+        private void toolStripMenuItem31_Click(object sender, EventArgs e)
+        {
+            CurrentTB.Copy();
+        }
+
+        private void toolStripMenuItem32_Click(object sender, EventArgs e)
+        {
+            CurrentTB.Cut();
+        }
+
+        private void toolStripMenuItem33_Click(object sender, EventArgs e)
+        {
+            CurrentTB.Paste();
+        }
+
+        private void toolStripMenuItem37_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (CurrentTB.Language == FastColoredTextBoxNS.Language.HTML) //if language is html
+                {
+                    HTMLPreview h = new HTMLPreview(CurrentTB.Text);
+                    h.Show();
+                }
+                else if (CurrentTB.Language == FastColoredTextBoxNS.Language.CSharp) //if language is c#
+                {
+                    toolStripStatusLabel1.Text = "Info: " + "Starting to compile the program";
+
+                    SaveFileDialog sf = new SaveFileDialog();
+                    sf.Filter = "Executable File|*.exe";
+                    string OutPath = "There is no Output Path to create the program";
+                    if (sf.ShowDialog() == DialogResult.OK)
+                    {
+                        OutPath = sf.FileName;
+                    }
+                    //compile code:
+                    //create c# code compiler
+                    CSharpCodeProvider codeProvider = new CSharpCodeProvider();
+                    //create new parameters for compilation and add references(libs) to compiled app
+                    CompilerParameters parameters = new CompilerParameters(new string[] { "System.dll" });
+                    //is compiled code will be executable?(.exe)
+                    parameters.GenerateExecutable = true;
+                    //output path
+                    parameters.OutputAssembly = OutPath;
+                    //code sources to compile
+                    string[] sources = { CurrentTB.Text };
+                    //results of compilation
+                    CompilerResults results = codeProvider.CompileAssemblyFromSource(parameters, sources);
+
+                    // Get the current time
+                    string currentTime = DateTime.Now.ToString();
+
+
+                    toolStripProgressBar1.Enabled = true;
+
+                    toolStripStatusLabel1.Text = "Info: " + "Loading";
+
+                    //if has errors
+                    if (results.Errors.Count > 0)
+                    {
+                        string errsText = "";
+                        foreach (CompilerError CompErr in results.Errors)
+                        {
+                            errsText = "Code Error: (" + CompErr.ErrorNumber +
+                                        "), Line " + CompErr.Line +
+                                        ", Column " + CompErr.Column +
+                                        ": " + CompErr.ErrorText + "" +
+                                        Environment.NewLine;
+                        }
+                        //show error message
+                        MessageBox.Show(errsText, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                        foreach (CompilerError CompErr in results.Errors)
+                        {
+                            string ErrorText = "Error:" + errsText.ToString();
+                            ;
+                            Log(DateTime.Now, ErrorText, "\r\n", errorStyle);
+                            //richTextBox1.ForeColor = Color.Red;
+                            //richTextBox1.Text += currentTime + ": Error: " + errsText.ToString() + "\n";
+                        }
+
+                        toolStripStatusLabel1.ForeColor = Color.Red;
+                        toolStripStatusLabel1.Text = currentTime + ": Error: " + errsText.ToString();
+
+                    }
+                    else
+                    {
+                        //run compiled app
+                        System.Diagnostics.Process.Start(OutPath);
+
+                        FCTBConsole.Text = "";
+
+                        Log(DateTime.Now, " Info: Successful Compilation", "\r\n", infoStyle);
+
+                        toolStripStatusLabel1.ForeColor = Color.Green;
+                        toolStripStatusLabel1.Text = currentTime + ": Info: " + "Successful compilation";
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("INDEV Syntaxies: Cannot open this file!");
+                }
+            }
+            catch (Exception)
+            {
+                // Handle the exception here
+                MessageBox.Show("Error: There is no tab open to compile code.", "Compiler Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void toolStripMenuItem39_Click(object sender, EventArgs e)
+        {
+            About AboutSyntaxies = new About();
+            AboutSyntaxies.Show();
+        }
+
+        private void label2_TextChanged(object sender, EventArgs e)
+        {
+            //label2.Text = "INDEV Syntaxies 2024 - " + tab.Title;
+        }
+
+        private void hTMLEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FormClosingEventArgs a = new FormClosingEventArgs(CloseReason.ApplicationExitCall, false);
+
+            EnteringHTMLEditor(a);
+        }
+
+        private void tbFind_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+
         }
     }
 

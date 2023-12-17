@@ -29,6 +29,8 @@ namespace Tester
         {
             HeaderLabel.Text = "Text File";
             DescripLabel.Text = "In computing, formatted text, styled text, or rich text, as opposed to plain text, is digital text which has styling information beyond the minimum of semantic elements: colours, styles, sizes, and special features in HTML. a Blank text format";
+            fastColoredTextBox1.Text = "Write whatever you want!";
+            fastColoredTextBox1.Language = Language.Custom;
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -118,6 +120,26 @@ namespace Tester
             {
                 Editor.instance.SelcelLang.Text = "Lang:C#";
             }
+            else if (HeaderLabel.Text == "(.cpp) C++ File")
+            {
+                Editor.instance.SelcelLang.Text = "Lang:C++CPP";
+            }
+            else if (HeaderLabel.Text == "(.h) C++ File")
+            {
+                Editor.instance.SelcelLang.Text = "Lang:C++H";
+            }
+            else if (HeaderLabel.Text == "C File")
+            {
+                Editor.instance.SelcelLang.Text = "Lang:C";
+            }
+            else if (HeaderLabel.Text == "Java File")
+            {
+                Editor.instance.SelcelLang.Text = "Lang:Java";
+            }
+            else if (HeaderLabel.Text == "Python File")
+            {
+                Editor.instance.SelcelLang.Text = "Lang:Python";
+            }
             else if (HeaderLabel.Text == "HTML File")
             {
                 Editor.instance.SelcelLang.Text = "Lang:HTML";
@@ -159,6 +181,229 @@ namespace Tester
             DescripLabel.Text = "N/A";
 
             this.Hide();
+        }
+
+        private void button13_Click(object sender, EventArgs e)
+        {
+            button2.Visible = true;
+            button1.Visible = false;
+            button3.Visible = false;
+            button4.Visible = false;
+            button5.Visible = false;
+            button6.Visible = false;
+            button7.Visible = false;
+            button8.Visible = false;
+            button9.Visible = false;
+            button10.Visible = false;
+            button18.Visible = false;
+            button19.Visible = false;
+            button20.Visible = false;
+            button21.Visible = false;
+        }
+
+        private void button14_Click(object sender, EventArgs e)
+        {
+            button2.Visible = false;
+            button1.Visible = false;
+            button3.Visible = false;
+            button4.Visible = false;
+            button5.Visible = false;
+            button6.Visible = true;
+            button7.Visible = false;
+            button8.Visible = false;
+            button9.Visible = false;
+            button10.Visible = false;
+            button18.Visible = false;
+            button19.Visible = false;
+            button20.Visible = false;
+            button21.Visible = false;
+        }
+
+        private void button15_Click(object sender, EventArgs e)
+        {
+            button2.Visible = false;
+            button1.Visible = false;
+            button3.Visible = false;
+            button4.Visible = false;
+            button5.Visible = false;
+            button6.Visible = false;
+            button7.Visible = true;
+            button8.Visible = false;
+            button9.Visible = false;
+            button10.Visible = false;
+            button18.Visible = false;
+            button19.Visible = false;
+            button20.Visible = false;
+            button21.Visible = false;
+        }
+
+        private void button16_Click(object sender, EventArgs e)
+        {
+            button2.Visible = false;
+            button1.Visible = false;
+            button3.Visible = false;
+            button4.Visible = false;
+            button5.Visible = false;
+            button6.Visible = false;
+            button7.Visible = false;
+            button8.Visible = false;
+            button9.Visible = true;
+            button10.Visible = false;
+            button18.Visible = false;
+            button19.Visible = false;
+            button20.Visible = false;
+            button21.Visible = false;
+        }
+
+        private void button17_Click(object sender, EventArgs e)
+        {
+            button2.Visible = false;
+            button1.Visible = false;
+            button3.Visible = true;
+            button4.Visible = true;
+            button5.Visible = false;
+            button6.Visible = false;
+            button7.Visible = true;
+            button8.Visible = false;
+            button9.Visible = false;
+            button10.Visible = false;
+            button18.Visible = false;
+            button19.Visible = false;
+            button20.Visible = false;
+            button21.Visible = false;
+        }
+
+        private void button25_Click(object sender, EventArgs e)
+        {
+            button2.Visible = false;
+            button1.Visible = false;
+            button3.Visible = false;
+            button4.Visible = false;
+            button5.Visible = false;
+            button6.Visible = false;
+            button7.Visible = false;
+            button8.Visible = false;
+            button9.Visible = false;
+            button10.Visible = false;
+            button18.Visible = false;
+            button19.Visible = false;
+            button20.Visible = true;
+            button21.Visible = true;
+            button27.Visible = false;
+        }
+
+        private void button24_Click(object sender, EventArgs e)
+        {
+            button2.Visible = false;
+            button1.Visible = false;
+            button3.Visible = false;
+            button4.Visible = false;
+            button5.Visible = false;
+            button6.Visible = false;
+            button7.Visible = false;
+            button8.Visible = false;
+            button9.Visible = false;
+            button10.Visible = false;
+            button18.Visible = false;
+            button19.Visible = false;
+            button20.Visible = false;
+            button21.Visible = false;
+            button27.Visible = true;
+        }
+
+        private void button23_Click(object sender, EventArgs e)
+        {
+            button2.Visible = false;
+            button1.Visible = false;
+            button3.Visible = false;
+            button4.Visible = false;
+            button5.Visible = false;
+            button6.Visible = false;
+            button7.Visible = false;
+            button8.Visible = false;
+            button9.Visible = false;
+            button10.Visible = false;
+            button18.Visible = false;
+            button19.Visible = true;
+            button20.Visible = false;
+            button21.Visible = false;
+            button27.Visible = false;
+        }
+
+        private void button22_Click(object sender, EventArgs e)
+        {
+            button2.Visible = false;
+            button1.Visible = false;
+            button3.Visible = false;
+            button4.Visible = false;
+            button5.Visible = false;
+            button6.Visible = false;
+            button7.Visible = false;
+            button8.Visible = false;
+            button9.Visible = false;
+            button10.Visible = false;
+            button18.Visible = true;
+            button19.Visible = false;
+            button20.Visible = false;
+            button21.Visible = false;
+        }
+
+        private void button26_Click(object sender, EventArgs e)
+        {
+            button2.Visible = false;
+            button1.Visible = true;
+            button3.Visible = false;
+            button4.Visible = false;
+            button5.Visible = false;
+            button6.Visible = false;
+            button7.Visible = false;
+            button8.Visible = false;
+            button9.Visible = false;
+            button10.Visible = false;
+            button18.Visible = false;
+            button19.Visible = false;
+            button20.Visible = false;
+            button21.Visible = false;
+        }
+
+        private void button18_Click(object sender, EventArgs e)
+        {
+            HeaderLabel.Text = "Python File";
+            DescripLabel.Text = "Python is a high-level, general-purpose programming language. Its design philosophy emphasizes code readability with the use of significant indentation.";
+            fastColoredTextBox1.Text = "message = \"Hello, world!\"\r\nprint(message)";
+            fastColoredTextBox1.Language = Language.Custom;
+        }
+
+        private void button19_Click(object sender, EventArgs e)
+        {
+            HeaderLabel.Text = "Java File";
+            DescripLabel.Text = "Java is a set of computer software and specifications that provides a software platform for developing application software and deploying it in a cross-platform computing environment.";
+            fastColoredTextBox1.Text = "public class HelloWorld {\r\n    public static void main(String[] args) {\r\n        System.out.println(\"Hello, world!\");\r\n    }\r\n}";
+            fastColoredTextBox1.Language = Language.Custom;
+        }
+
+        private void button20_Click(object sender, EventArgs e)
+        {
+            HeaderLabel.Text = "(.cpp) C++ File";
+            DescripLabel.Text = "C++ is a high-level, general-purpose programming language created by Danish computer scientist Bjarne Stroustrup. filename extension that may apply to: Files containing C Preprocessor directives. Files containing C++ code.";
+            fastColoredTextBox1.Text = "#include <iostream>\r\n\r\nint main() {\r\n  std::cout << \"Hello, world!\" << std::endl;\r\n  return 0;\r\n}";
+            fastColoredTextBox1.Language = Language.Custom;
+        }
+
+        private void button21_Click(object sender, EventArgs e)
+        {
+            HeaderLabel.Text = "(.h) C++ File";
+            DescripLabel.Text = "h is the extension of the header file. Unlike C, C++ header files may or may not have . h extension. It must enclose the name of the header file in the angle brackets, and #include is the preprocessor directive.";
+            fastColoredTextBox1.Text = "#ifndef MY_HEADER_H\r\n#define MY_HEADER_H\r\n\r\nstruct Point {\r\n  int x;\r\n  int y;\r\n};\r\n\r\ndouble distance(Point p1, Point p2);\r\n\r\n#define MAX_SIZE 100\r\n\r\n#endif";
+            fastColoredTextBox1.Language = Language.Custom;
+        }
+
+        private void button27_Click(object sender, EventArgs e)
+        {
+            HeaderLabel.Text = "C File";
+            DescripLabel.Text = "C is a general-purpose computer programming language. It was created in the 1970s by Dennis Ritchie, and remains very widely used and influential. By design, C's features cleanly reflect the capabilities of the targeted CPUs.";
+            fastColoredTextBox1.Text = "#include <stdio.h>\r\n\r\nint main() {\r\n  printf(\"Hello, world!\\n\");\r\n  return 0;\r\n}";
+            fastColoredTextBox1.Language = Language.Custom;
         }
     }
 }

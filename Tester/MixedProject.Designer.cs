@@ -39,7 +39,7 @@
             // 
             // panel1
             // 
-            this.panel1.BackColor = System.Drawing.Color.DimGray;
+            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(8)))), ((int)(((byte)(122)))), ((int)(((byte)(202)))));
             this.panel1.Controls.Add(this.button12);
             this.panel1.Controls.Add(this.button11);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -76,7 +76,11 @@
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Items.AddRange(new object[] {
             "CSharp",
+            "C++",
+            "C",
             "Lua",
+            "Java",
+            "Python",
             "Web page",
             "Visual Basic",
             "PHP"});
