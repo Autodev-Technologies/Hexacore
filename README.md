@@ -1,8 +1,3 @@
 # Syntaxies X2
-<p align="center">
-  <a href="">
-    <img src="https://github.com/INDEV-Technologies/Syntaxies/assets/126918321/8daf9c32-201d-4abf-b52a-4ec18b176877" width="650" alt="Sunken">
-  </a>
-</p>
-
+![Banner_2](https://github.com/AutoINDEV-Technologies/Syntaxies/assets/126918321/3d282197-5625-4471-8d71-858eaa971011)
 Autodev Hexacore X2 | Syntaxies
